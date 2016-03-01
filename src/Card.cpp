@@ -1,4 +1,4 @@
-#include "../include/Card.hpp"
+#include "Card.hpp"
 
 const Card_Color Card::getColor() { return this->color; }
 const Card_Figure Card::getFigure() { return this->figure; }

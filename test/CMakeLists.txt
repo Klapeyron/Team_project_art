@@ -1,8 +1,11 @@
 enable_testing()
 
 find_package(GTest REQUIRED)
+find_package(Threads REQUIRED)
 
 set( PROJ_TEST_NAME      "unitTests" )
+
+include_directories( ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include ${GTEST_INCLUDE_DIR})
 
 include_directories( ${CMAKE_SOURCE_DIR}/src
 		     ${CMAKE_SOURCE_DIR}/include
@@ -11,17 +14,18 @@ include_directories( ${CMAKE_SOURCE_DIR}/src
 		    )
 
 add_executable( ${PROJ_TEST_NAME}
+		CardTest.cpp
 		main.cpp
 )
 
+target_link_libraries(	${PROJ_TEST_NAME}
+			libRummyGin
+)
+
 target_link_libraries( ${PROJ_TEST_NAME}
-		       ${LIBRARY_NAME}
 		       ${GTEST_BOTH_LIBRARIES}
 		       ${GMOCK_LIBRARIES}
-		       -lcrypto
-		       -lgtest
-		       -lgmock
-		       -pthread
+		       ${CMAKE_THREAD_LIBS_INIT}
 )
 
 set_target_properties( ${PROJ_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build )
