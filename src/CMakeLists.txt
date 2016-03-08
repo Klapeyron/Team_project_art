@@ -3,7 +3,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 find_package( OpenCV REQUIRED )
 
 add_library ( libRummyGin
-	    Card.cpp
+              Card.cpp
+	      TableSubject.cpp
 	    )
 
 add_executable ( ${PROJ_NAME} main.cpp )
