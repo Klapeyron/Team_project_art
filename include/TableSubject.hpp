@@ -6,6 +6,6 @@
 class TableSubject {
   std::vector<TableObserver*> observers;
  public:
-  void registerOberver(TableObserver& );
+  void registerOberver(TableObserver &);
   void notify(TableSnapshot const&);
 };
