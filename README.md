@@ -1,5 +1,8 @@
 ## Team project ART
 
+### Roadmap projektu:
+[https://trello.com/b/PmTsc0OK/team-project-art-roadmap](https://trello.com/b/PmTsc0OK/team-project-art-roadmap)
+
 ### Install:
 ```sh
 sudo apt-get install libopencv-dev
@@ -40,5 +43,5 @@ make
 #### Using clang
 If u want use clang to compile application, type in build/ directory:
 ```sh
-cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ ..
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_ZLIB=ON -D BUILD_PYTHON_SUPPORT=ON -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules ..
 ```
