@@ -8,4 +8,4 @@ class IGameControl {
   virtual void endGame(Card const&) = 0;
   virtual void touchCard(Card const&) = 0;
   virtual void pressOK() = 0;
-}
+};
