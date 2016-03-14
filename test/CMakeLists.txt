@@ -27,6 +27,7 @@ target_link_libraries( ${PROJ_TEST_NAME}
 		       ${GTEST_BOTH_LIBRARIES}
 		       ${GMOCK_LIBRARIES}
 		       ${CMAKE_THREAD_LIBS_INIT}
+		       -lgmock
 )
 
 set_target_properties( ${PROJ_TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build )

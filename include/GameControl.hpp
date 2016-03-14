@@ -8,7 +8,8 @@ class GameControl :public IGameControl {
   void pickCardFromHiddenStack();
   void pickCardFromStack();
   void throwMyCard(Card const&);
-  void endGame(Card const&);
+  void endGame();
   void touchCard(Card const&);
   void pressOK();
 };
+
