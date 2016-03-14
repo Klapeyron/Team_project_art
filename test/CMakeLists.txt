@@ -15,6 +15,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/src
 
 add_executable( ${PROJ_TEST_NAME}
 		CardTest.cpp
+		ArtificialIntelligence.cpp
 		main.cpp
 )
 
