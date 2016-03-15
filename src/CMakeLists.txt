@@ -3,6 +3,7 @@ include_directories( ${CMAKE_SOURCE_DIR}/include )
 find_package( OpenCV REQUIRED )
 
 add_library ( libRummyGin
+              ArtificialIntelligence.cpp
               Card.cpp
 	      PrintScreenMaker.cpp
 	      TableSubject.cpp
