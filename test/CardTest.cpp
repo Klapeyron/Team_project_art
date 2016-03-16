@@ -17,10 +17,10 @@ TEST (CardTest, cardsShouldBeSuccessfulCompared)
 
 TEST (CardTest, colorsAndFiguresShouldHaveIntegerRepresentation)
 {
-  EXPECT_EQ (static_cast<int> (Card_Color::SPADE), 0);
-  EXPECT_EQ (static_cast<int> (Card_Figure::A), 0);
-  EXPECT_EQ (static_cast<int> (Card_Color::DIAMOND), 3);
-  EXPECT_EQ (static_cast<int> (Card_Figure::KING), 12);
-  EXPECT_EQ (static_cast<int> (Card_Color::None), 4);
-  EXPECT_EQ (static_cast<int> (Card_Figure::None), 13);
+  EXPECT_EQ (static_cast<int> (Card_Color::SPADE), 1);
+  EXPECT_EQ (static_cast<int> (Card_Figure::A), 1);
+  EXPECT_EQ (static_cast<int> (Card_Color::DIAMOND), 4);
+  EXPECT_EQ (static_cast<int> (Card_Figure::KING), 13);
+  EXPECT_EQ (static_cast<int> (Card_Color::None), 0);
+  EXPECT_EQ (static_cast<int> (Card_Figure::None), 0);
 }
