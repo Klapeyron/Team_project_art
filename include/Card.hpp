@@ -11,6 +11,6 @@ public:
                           Card_Color newColor = Card_Color::None) :color(newColor), figure(newFigure) {};
   constexpr Card_Color getColor() const { return color; }
   constexpr Card_Figure getFigure() const { return figure; }
-  bool operator ==(const Card& card);
-  bool operator !=(const Card& card);
+  bool operator ==(const Card& card) const;
+  bool operator !=(const Card& card) const;
 };
