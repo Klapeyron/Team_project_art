@@ -15,7 +15,7 @@ TEST (ArtificialIntelligenceTest, missingSequenceCardShouldBeTakenFromStack )
   };
 
   tableSnapshot.stackCard = Card(Card_Figure::SEVEN, Card_Color::CLUB);
-
+  
   GameControlMock gameControl;
   ArtificialIntelligence artificialIntelligence(gameControl);
 

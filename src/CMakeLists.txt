@@ -7,6 +7,7 @@ add_library ( libRummyGin
               Card.cpp
 	      PrintScreenMaker.cpp
 	      TableSubject.cpp
+	      DetectionSystem.cpp
 	    )
 
 add_executable ( ${PROJ_NAME} main.cpp )
