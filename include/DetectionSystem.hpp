@@ -5,9 +5,10 @@
 #include "PrintScreenMaker.hpp"
 
 #include <string>
-#include <opencv/cv.hpp>
 
 class DetectionSystem :public TableSubject, public PrintScreenMaker {
+  const std::string imagePath;
  public:
-  void processSnapshot(std::string const& imageFilePath);
+  DetectionSystem(std::string const& imageFilePath) :imagePath(imageFilePath) {}
+  void run();
 };

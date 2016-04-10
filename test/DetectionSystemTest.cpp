@@ -6,14 +6,13 @@
 
 TEST (DetectionSystemTest, sampleDetectionTest)
 {
-  DetectionSystem detectionSystem;
+  const std::string tableSnapshotFilePath = "../test/tableSnapshot.tiff";
+  DetectionSystem detectionSystem (tableSnapshotFilePath);
   TableObserverMock tableObserver;
   detectionSystem.registerOberver(tableObserver);
-
-  std::string tableSnapshotFilePath = "../test/tableSnapshot.tiff";
  
   TableSnapshot output;
   EXPECT_CALL(tableObserver, onUpdate(ContainsThisSnapshot(output)));
   
-  detectionSystem.processSnapshot(tableSnapshotFilePath);
+  detectionSystem.run();
 }
