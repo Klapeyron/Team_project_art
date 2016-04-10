@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <list>
 #include <set>
 #include <algorithm>
 #include <type_traits>
@@ -9,7 +10,7 @@
 #include "IGameControl.hpp"
 #include "TableObserver.hpp"
 
-struct Porownanie
+struct Comparation
 {
   bool operator()(const Card& a, const Card& b)
   {
@@ -20,98 +21,53 @@ struct Porownanie
 class ArtificialIntelligence :public TableObserver {
   IGameControl & gameControl;
   const int minSeqLen = 3;
-  std::multiset < Card, Porownanie > cards;//karty do przeszukania
-  std::vector < std::multiset < Card, Porownanie > > sequences;//znalezione sekwencje
+  std::list < Card > cardDeck;//talia kart
+  std::multiset < Card, Comparation > cards;//karty do przeszukania
+  std::vector < std::multiset < Card, Comparation > > sequences;//znalezione sekwencje
+  std::vector < std::vector < Card > > groups;//znalezione grupy
   
  public:
-  ArtificialIntelligence(IGameControl & gameControlInterface) :gameControl(gameControlInterface) {}
+  ArtificialIntelligence(IGameControl & gameControlInterface) :gameControl(gameControlInterface)
+  {
+    for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); figure++)
+      for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); color++)
+	cardDeck.push_back( Card( static_cast<Card_Figure> (figure), static_cast<Card_Color> (color)));
+  }
   void onUpdate(TableSnapshot const&);
   
-  std::vector < std::multiset < Card, Porownanie > > ReturnSeqs()
+  std::vector < std::multiset < Card, Comparation > > ReturnSeqs()
   {
     return sequences;
   }
   
-  std::vector < std::multiset < Card, Porownanie > >& Seqs()
+  std::vector < std::multiset < Card, Comparation > >& Seqs()
   {
     return sequences;
   }
   
-  void ShowSeqs()
+  std::vector < std::vector < Card > > ReturnGroups()
   {
-    int l = 1;
-    for (std::vector < std::multiset < Card, Porownanie > >::iterator it1 = sequences.begin(); it1 != sequences.end(); ++it1)
-    {
-      std::cout << "Seq: " << l++ << std::endl;
-      for (std::multiset< Card >::iterator it = it1->begin(); it != it1->end(); ++it)
-      {
-	std::cout << "f: " << static_cast<std::underlying_type<Card_Figure>::type>(it->getFigure()) << " c: " << static_cast<std::underlying_type<Card_Color>::type>(it->getColor()) << std::endl;
-      }
-    }
+    return groups;
   }
   
-  void FindAllSeqs()
+  std::vector < std::vector < Card > >& Groups()
   {
-    FindSeqOneColor(Card_Color::SPADE);
-    FindSeqOneColor(Card_Color::HEART);
-    FindSeqOneColor(Card_Color::CLUB);
-    FindSeqOneColor(Card_Color::DIAMOND);
+    return groups;
   }
   
-  void FindSeqOneColor(Card_Color color)
-  {
-    int i = 0;
-    std::multiset < Card, Porownanie > sequence;
-    //szukanie startu
-    for (std::multiset< Card >::iterator it = cards.begin(); it != cards.end(); ++it)
-      if(it->getColor() == color)
-      {
-	i = static_cast<std::underlying_type<Card_Figure>::type>(it->getFigure());
-	
-	break;
-      }
-    //szukanie sekwencji
-    for (std::multiset< Card >::iterator it = cards.begin(); it != cards.end(); ++it)
-    {
-      if(it->getColor() == color)
-      {
-	if(static_cast<std::underlying_type<Card_Figure>::type>(it->getFigure()) == i)
-	  sequence.insert(Card(it->getFigure(), it->getColor()));
-	else
-	{
-	  if(sequence.size() >= minSeqLen)
-	    sequences.push_back(sequence);
-	  sequence.clear();
-	  --it;
-	}
-	if(++i > static_cast<int> (Card_Figure::KING)) break;
-      }
-    }
-    if(sequence.size() >= minSeqLen)
-	    sequences.push_back(sequence);
-  }
+  void ShowGroups();
   
-  void CreateCards()
-  {
-    cards.insert(Card(Card_Figure::THREE, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::SEVEN, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::FOUR, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::TWO, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::KING, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::NINE, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::EIGHT, Card_Color::SPADE));
-    cards.insert(Card(Card_Figure::FIVE, Card_Color::HEART));
-    cards.insert(Card(Card_Figure::FOUR, Card_Color::HEART));
-    cards.insert(Card(Card_Figure::THREE, Card_Color::HEART));
-    cards.insert(Card(Card_Figure::FIVE, Card_Color::SPADE));
-  }
+  void ShowSeqs();
   
-  void ShowCards()
-  {
-    std::cout << "Cards:" << std::endl;
-    for (std::multiset< Card >::iterator it = cards.begin(); it != cards.end(); ++it)
-    {
-      std::cout << "f: " << static_cast<std::underlying_type<Card_Figure>::type>(it->getFigure()) << " c: " << static_cast<std::underlying_type<Card_Color>::type>(it->getColor()) << std::endl;
-    }
-  }
+  void FindGroups();
+  
+  void FindSeqs();
+  
+  void FindSeqOneColor(Card_Color color);
+  
+  bool DecisionToTakeTheCard(const Card& card);
+  
+  void CreateCards();
+  
+  void ShowCards();
 };
