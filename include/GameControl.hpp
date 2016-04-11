@@ -12,4 +12,3 @@ class GameControl :public IGameControl {
   void touchCard(Card const&);
   void pressOK();
 };
-
