@@ -6,4 +6,5 @@
 struct TableSnapshot {
   std::vector<Card> playerCards;
   Card stackCard;
+  bool myMove = true;
 };

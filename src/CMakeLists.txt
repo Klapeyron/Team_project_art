@@ -8,6 +8,8 @@ add_library ( libRummyGin
 	      PrintScreenMaker.cpp
 	      TableSubject.cpp
 	      DetectionSystem.cpp
+	      Position.cpp
+	      ButtonsSnapshot.cpp
 	    )
 
 add_executable ( ${PROJ_NAME} main.cpp )
