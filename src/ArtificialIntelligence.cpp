@@ -119,6 +119,21 @@ bool ArtificialIntelligence::DecisionToTakeTheCard(const Card& card)
       return true;
     }
   }
+  for (std::vector < std::vector < Card > >::iterator it1 = groups.begin(); it1 != groups.end(); ++it1)
+  {
+    if (it1->begin()->getColor() > Card_Color::SPADE)
+    {
+      Card suitableCardBegin = Card(it1->begin()->getFigure(), static_cast<Card_Color>(static_cast<int>(it1->begin()->getColor()) - 1));
+    if (suitableCardBegin == card)
+      return true;
+    }
+    if (it1->end()->getColor() < Card_Color::DIAMOND)
+    {
+      Card suitableCardBegin = Card(it1->end()->getFigure(), static_cast<Card_Color>(static_cast<int>(it1->end()->getColor()) + 1));
+    if (suitableCardBegin == card)
+      return true;
+    }
+  }
   return false;
 }
 
