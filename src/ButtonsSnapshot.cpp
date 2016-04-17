@@ -1,6 +1,6 @@
 #include "ButtonsSnapshot.hpp"
 
-Position ButtonsSnapshot::getButtonPosition(std::string const& buttonName)
+const Position ButtonsSnapshot::getButtonPosition(std::string const& buttonName)
 {
   return Position();
 }

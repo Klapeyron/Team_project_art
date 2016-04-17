@@ -12,9 +12,9 @@ private:
 public:
   void pickCardFromHiddenStack();
   void pickCardFromStack();
-  void throwMyCard(Card const&);
+  void throwMyCard(const Card &);
   void endGame();
-  void touchCard(Card const&);
+  void touchCard(const Card &);
   void pressOK();
   
 };

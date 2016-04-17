@@ -15,5 +15,5 @@ class ButtonsSnapshot
 {
   std::map<std::string,Position> buttons;
  public:
-  static Position getButtonPosition(std::string const& buttonName);
+  static const Position getButtonPosition(std::string const& buttonName);
 };

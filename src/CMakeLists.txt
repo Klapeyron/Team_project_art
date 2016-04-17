@@ -10,6 +10,7 @@ add_library ( libRummyGin
 	      DetectionSystem.cpp
 	      Position.cpp
 	      ButtonsSnapshot.cpp
+	      GameControl.cpp
 	    )
 
 add_executable ( ${PROJ_NAME} main.cpp )
