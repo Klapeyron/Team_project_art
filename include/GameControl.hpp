@@ -4,11 +4,16 @@
 #include "IGameControl.hpp"
 #include "Position.hpp"
 #include "ButtonsSnapshot.hpp"
-
+#include <unistd.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <iostream>
+#include <string.h>
 class GameControl :public IGameControl 
 {
 private:
-  void makeMove(const Position & position);
+  void setPosition(const Position & position);
+  void mouseClick(int button);
 public:
   void pickCardFromHiddenStack();
   void pickCardFromStack();
