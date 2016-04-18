@@ -29,8 +29,8 @@ class ArtificialIntelligence :public TableObserver {
  public:
   ArtificialIntelligence(IGameControl & gameControlInterface) :gameControl(gameControlInterface)
   {
-    for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); figure++)
-      for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); color++)
+    for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
+      for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); ++color)
 	cardDeck.push_back( Card( static_cast<Card_Figure> (figure), static_cast<Card_Color> (color)));
   }
   void onUpdate(TableSnapshot const&);
@@ -59,13 +59,25 @@ class ArtificialIntelligence :public TableObserver {
   
   void ShowSeqs();
   
-  void FindGroups();
+  void AddFindGroups();
   
-  void FindSeqs();
+  std::vector < std::vector < Card > > FindGroups(const std::multiset < Card, Comparation >& source);
   
-  void FindSeqOneColor(Card_Color color);
+  bool FindCardInGroups(const Card& card, std::vector < std::vector < Card > > groups);
+  
+  void AddFindSeqs();
+  
+  std::vector < std::multiset < Card, Comparation > > FindSeqs(const std::multiset < Card, Comparation >& source);
+  
+  std::vector < std::multiset < Card, Comparation > > FindOneColorSeq(Card_Color color, const std::multiset < Card, Comparation >& source);
+  
+  bool FindCardInSeq(const Card& card, const std::multiset < Card, Comparation >& sequence);
+  
+  bool FindCardInSeqs(const Card& card, const std::vector < std::multiset < Card, Comparation > >& sequences);
   
   bool DecisionToTakeTheCard(const Card& card);
+  
+  void RemoveCardFromDeck(const Card& card);
   
   void CreateCards();
   
