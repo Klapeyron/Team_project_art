@@ -20,6 +20,5 @@ public:
   void throwMyCard(const Card &);
   void endGame();
   void touchCard(const Card &);
-  void pressOK();
-  
+  void pressOK();  
 };

@@ -11,12 +11,11 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		if (DecisionToTakeTheCard(tableSnapshot.stackCard))
 		{
 			gameControl.pickCardFromStack();
-			std::cout<<"ff"<<std::endl;
 		}
 		else
 		{
 			gameControl.pickCardFromHiddenStack();
-			std::cout<<"gg"<<std::endl;}
+                }
 	}
 	else
 		RemoveCardFromDeck(tableSnapshot.stackCard);
@@ -169,7 +168,7 @@ bool ArtificialIntelligence::DecisionToTakeTheCard(const Card& card)
 		}
 		if (it1->end()->getFigure() < Card_Figure::KING)//sprawdzanie początku
 		{
-			Card suitableCardEnd = Card(static_cast<Card_Figure>(static_cast<int>(it1->end()->getFigure()) + 1), it1->end()->getColor());
+                  Card suitableCardEnd = Card(static_cast<Card_Figure>(static_cast<int>(std::prev(it1->end())->getFigure()) + 1), std::prev(it1->end())->getColor());
 			if (suitableCardEnd == card)
 				return true;
 		}
@@ -193,7 +192,7 @@ bool ArtificialIntelligence::DecisionToTakeTheCard(const Card& card)
 			tmpCards.insert(*it);
 	}
 	tmpCards.insert(card);
-	if(!FindSeqs(tmpCards).empty() && !FindGroups(tmpCards).empty())
+	if(!FindSeqs(tmpCards).empty() or !FindGroups(tmpCards).empty())
 		return true;
 	
 	return false;
@@ -203,7 +202,10 @@ void ArtificialIntelligence::RemoveCardFromDeck(const Card& card)
 {
 	for(std::list < Card >::iterator it = cardDeck.begin(); it != cardDeck.end(); ++it)
 		if(*it == card)
+                {
 			cardDeck.erase(it);
+                        break;
+                }
 }
 
 void ArtificialIntelligence::CreateCards()

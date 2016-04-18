@@ -247,6 +247,31 @@ TEST (ArtificialIntelligenceTest, beginSequenceTest_cardShouldBeTaken)
   artificialIntelligence.onUpdate(tableSnapshot);
 }
 
+TEST (ArtificialIntelligenceTest, beginSequenceTest_highCardWithRubbishCard_cardShouldBeTaken)
+{
+  TableSnapshot tableSnapshot;
+
+  tableSnapshot.playerCards = {
+    Card(Card_Figure::NINE, Card_Color::HEART),
+    Card(Card_Figure::TEN, Card_Color::HEART),
+    Card(Card_Figure::JACK, Card_Color::HEART),
+    Card(Card_Figure::QUEEN, Card_Color::HEART),
+    Card(Card_Figure::EIGHT, Card_Color::SPADE),
+  };
+
+  tableSnapshot.stackCard = Card(Card_Figure::EIGHT, Card_Color::HEART);
+
+  GameControlMock gameControl;
+  ArtificialIntelligence artificialIntelligence(gameControl);
+
+  EXPECT_CALL(gameControl,pickCardFromStack())
+      .Times(1);
+  EXPECT_CALL(gameControl,pickCardFromHiddenStack())
+      .Times(0);
+
+  artificialIntelligence.onUpdate(tableSnapshot);
+}
+
 TEST (ArtificialIntelligenceTest, mediumSequenceTest_three_with_three_cardShouldBeTaken)
 {
   TableSnapshot tableSnapshot;
@@ -255,6 +280,7 @@ TEST (ArtificialIntelligenceTest, mediumSequenceTest_three_with_three_cardShould
     Card(Card_Figure::TWO, Card_Color::DIAMOND),
     Card(Card_Figure::THREE, Card_Color::DIAMOND),
     Card(Card_Figure::FOUR, Card_Color::DIAMOND),
+
     Card(Card_Figure::SIX, Card_Color::DIAMOND),
     Card(Card_Figure::SEVEN, Card_Color::DIAMOND),
     Card(Card_Figure::EIGHT, Card_Color::DIAMOND),
@@ -270,5 +296,40 @@ TEST (ArtificialIntelligenceTest, mediumSequenceTest_three_with_three_cardShould
   EXPECT_CALL(gameControl,pickCardFromHiddenStack())
       .Times(0);
 
+  artificialIntelligence.onUpdate(tableSnapshot);
+}
+
+TEST (ArtificialIntelligenceTest, enemyMove_nothingShouldBeDone)
+{
+  TableSnapshot tableSnapshot;
+
+  tableSnapshot.playerCards = {
+    Card(Card_Figure::TWO, Card_Color::DIAMOND),
+    Card(Card_Figure::THREE, Card_Color::DIAMOND),
+    Card(Card_Figure::SEVEN, Card_Color::SPADE),
+    Card(Card_Figure::EIGHT, Card_Color::SPADE),
+    Card(Card_Figure::KING, Card_Color::SPADE),
+    Card(Card_Figure::A, Card_Color::CLUB),
+  };
+
+  tableSnapshot.myMove = false;  
+  tableSnapshot.stackCard = Card(Card_Figure::FOUR, Card_Color::DIAMOND);
+
+  GameControlMock gameControl;
+  ArtificialIntelligence artificialIntelligence(gameControl);
+
+  EXPECT_CALL(gameControl,pickCardFromStack())
+      .Times(0);
+  EXPECT_CALL(gameControl,pickCardFromHiddenStack())
+      .Times(0);
+  EXPECT_CALL(gameControl,throwMyCard(testing::_))
+      .Times(0);
+  EXPECT_CALL(gameControl,touchCard(testing::_))
+      .Times(0);
+  EXPECT_CALL(gameControl,pressOK())
+      .Times(0);
+  EXPECT_CALL(gameControl,endGame())
+      .Times(0);
+  
   artificialIntelligence.onUpdate(tableSnapshot);
 }
