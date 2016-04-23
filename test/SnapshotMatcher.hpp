@@ -7,7 +7,7 @@ MATCHER_P(ContainsThisSnapshot, value, "") {
     if( std::find(arg.playerCards.begin(), arg.playerCards.end(), card) == arg.playerCards.end() )
       return false;
 
-  auto stackCardIsNone = value.stackCard == Card(Card_Figure::None, Card_Color::None);
+  auto stackCardIsNone = Card(Card_Figure::None, Card_Color::None) == value.stackCard;
   if(arg.stackCard != value.stackCard and not stackCardIsNone)
     return false;
   return true;

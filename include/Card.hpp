@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Position.hpp"
+#include <iostream>
 
 enum class Card_Color : unsigned int {None = 0, SPADE, HEART, CLUB, DIAMOND}; 
 enum class Card_Figure : unsigned int {None = 0, A, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING};
@@ -20,7 +21,7 @@ const inline Card_Figure end(Card_Figure x) {return static_cast<Card_Figure>(sta
 class Card :public Position {
   Card_Color color;
   Card_Figure figure;
-public:
+ public:
   constexpr explicit Card(Card_Figure newFigure = Card_Figure::None,
                           Card_Color newColor = Card_Color::None) :color(newColor), figure(newFigure) {};
   constexpr Card_Color getColor() const { return color; }
@@ -28,3 +29,24 @@ public:
   bool operator ==(const Card& card) const;
   bool operator !=(const Card& card) const;
 };
+
+inline std::ostream& operator<<(::std::ostream& os, const Card_Color& color) {
+  if(Card_Color::SPADE == color) return os << "SPADE";
+  if(Card_Color::HEART == color) return os << "HEART";
+  if(Card_Color::CLUB == color) return os << "CLUB";
+  if(Card_Color::DIAMOND == color) return os << "DIAMOND";
+  if(Card_Color::None == color) return os << "None";
+}
+
+inline std::ostream& operator<<(::std::ostream& os, const Card_Figure& figure) {
+  if(Card_Figure::A == figure) return os << "A";
+  if(Card_Figure::JACK == figure) return os << "JACK";
+  if(Card_Figure::QUEEN == figure) return os << "QUEEN";
+  if(Card_Figure::KING == figure) return os << "KING";
+  if(Card_Figure::None == figure) return os << "None";
+  return os << static_cast<int> (figure);
+}
+
+inline std::ostream& operator<<(::std::ostream& os, const Card& card) {
+  return os << card.getFigure() << " " << card.getColor() << std::endl;
+}
