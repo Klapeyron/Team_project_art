@@ -1,35 +1,18 @@
 #include "TableSubject.hpp"
 
-#include <chrono>
-
-TableSubject::TableSubject()
-{
-  auto process = [&]() { processInBackground(); };
-  thread = std::thread(process);
-}
-
-TableSubject::~TableSubject()
-{
-
-}
-
-bool TableSubject::allJobsFinished()
-{
-  thread.join();
-  return tableSnapshots.empty();
-}
+TableSubject::TableSubject() :canIWork{true} {}
 
 void TableSubject::processInBackground()
 {
-     TableSnapshot snapshot;
-      {
-        std::unique_lock<std::mutex> locker(mutex);
-        auto tableSnapshotsNotEmpty = [&]() { return not tableSnapshots.empty(); };
-        cv.wait(locker, tableSnapshotsNotEmpty);
-        snapshot = std::move(tableSnapshots.back());
-        tableSnapshots.pop_back();
-      }
-      notifyAllObservers(snapshot);
+    TableSnapshot snapshot;
+    {
+      std::unique_lock<std::mutex> locker(mutex);
+      auto tableSnapshotsNotEmpty = [&]() { return not tableSnapshots.empty(); };
+      cv.wait(locker, tableSnapshotsNotEmpty);
+      snapshot = std::move(tableSnapshots.back());
+      tableSnapshots.pop_back();
+    }
+    notifyAllObservers(snapshot);
 }
 
 void TableSubject::notifyAllObservers(TableSnapshot const& snapshot)
