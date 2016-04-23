@@ -12,15 +12,15 @@ void TableSubject::waitForUnfinishedJobs()
 
 void TableSubject::processInBackground()
 {
-    TableSnapshot snapshot;
-    {
-      std::unique_lock<std::mutex> locker(mutex);
-      auto tableSnapshotsNotEmpty = [&]() { return not tableSnapshots.empty(); };
-      cv.wait(locker, tableSnapshotsNotEmpty);
-      snapshot = std::move(tableSnapshots.back());
-      tableSnapshots.pop_back();
-    }
-    notifyAllObservers(snapshot);
+  TableSnapshot snapshot;
+  {
+    std::unique_lock<std::mutex> locker(mutex);
+    auto tableSnapshotsNotEmpty = [&]() { return not tableSnapshots.empty(); };
+    cv.wait(locker, tableSnapshotsNotEmpty);
+    snapshot = std::move(tableSnapshots.back());
+    tableSnapshots.pop_back();
+  }
+  notifyAllObservers(snapshot);
 }
 
 void TableSubject::notifyAllObservers(TableSnapshot const& snapshot)
@@ -35,7 +35,7 @@ void TableSubject::notify(TableSnapshot const& snapshot) {
   cv.notify_one();
 }
 
-void TableSubject::registerOberver(TableObserver& observer) {
+void TableSubject::registerOberver(TableObserver & observer) {
   std::unique_lock<std::mutex> locker(mutex);
   observers.push_back(&observer);
 }

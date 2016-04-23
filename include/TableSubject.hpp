@@ -7,6 +7,7 @@
 #include <mutex>
 #include <deque>
 #include <atomic>
+#include <memory>
 
 class TableSubject {
   std::vector<TableObserver*> observers;
