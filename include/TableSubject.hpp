@@ -24,5 +24,6 @@ class TableSubject {
   void processInBackground();
   void registerOberver(TableObserver &);
   void notify(TableSnapshot const&);
+  bool allJobsFinished();
   ~TableSubject();
 };

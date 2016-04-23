@@ -1,5 +1,7 @@
 #include "TableSubject.hpp"
 
+#include <chrono>
+
 TableSubject::TableSubject()
 {
   auto process = [&]() { processInBackground(); };
@@ -8,9 +10,14 @@ TableSubject::TableSubject()
 
 TableSubject::~TableSubject()
 {
-  thread.join();
+
 }
 
+bool TableSubject::allJobsFinished()
+{
+  thread.join();
+  return tableSnapshots.empty();
+}
 
 void TableSubject::processInBackground()
 {
@@ -33,7 +40,7 @@ void TableSubject::notifyAllObservers(TableSnapshot const& snapshot)
 
 void TableSubject::notify(TableSnapshot const& snapshot) {
   std::unique_lock<std::mutex> locker(mutex);
-  tableSnapshots.push_back( std::move(snapshot) );
+  tableSnapshots.push_front( std::move(snapshot) );
   cv.notify_one();
 }
 
