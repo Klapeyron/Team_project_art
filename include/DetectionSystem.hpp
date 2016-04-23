@@ -10,5 +10,4 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, TableAnalyz
  public:
   DetectionSystem(std::string const& imageFilePath) :imagePath(imageFilePath) {}
   void run();
-  ~DetectionSystem();
 };

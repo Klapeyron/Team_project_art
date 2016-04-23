@@ -16,10 +16,13 @@ class TableSubject {
   std::condition_variable cv;
   std::atomic<bool> canIWork;
 
+  std::thread thread;
   void notifyAllObservers(TableSnapshot const& snapshot);
+  void processInBackground();
  public:
   TableSubject();
-  void processInBackground();
+
+  void waitForUnfinishedJobs();
   void registerOberver(TableObserver &);
   void notify(TableSnapshot const&);
 };
