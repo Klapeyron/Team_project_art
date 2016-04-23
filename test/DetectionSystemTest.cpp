@@ -8,6 +8,7 @@ TEST (DetectionSystemTest, 1366x768DetectionTest)
 {
   const std::string tableSnapshotFilePath = "../test/DetectionSystemImages/tableSnapshot1366x768.tiff";
   DetectionSystem detectionSystem (tableSnapshotFilePath);
+  
   TableObserverMock tableObserver;
   detectionSystem.registerOberver(tableObserver);
  
