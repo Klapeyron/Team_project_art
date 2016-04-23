@@ -2,8 +2,15 @@
 
 TableSubject::TableSubject()
 {
-
+  auto process = [&]() { processInBackground(); };
+  thread = std::thread(process);
 }
+
+TableSubject::~TableSubject()
+{
+  thread.join();
+}
+
 
 void TableSubject::processInBackground()
 {
