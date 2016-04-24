@@ -1,9 +1,6 @@
 #include "TableSubject.hpp"
 
-TableSubject::TableSubject() :canIWork{true}
-{
-  thread = std::thread(&TableSubject::processInBackground,this);
-}
+TableSubject::TableSubject() :canIWork{true}, thread(&TableSubject::processInBackground,this) {}
 
 void TableSubject::waitForUnfinishedJobs()
 {
