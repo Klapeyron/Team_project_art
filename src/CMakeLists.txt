@@ -7,7 +7,7 @@ add_library ( libRummyGin
               Card.cpp
 	      PrintScreenMaker.cpp
 	      TableSubject.cpp
-	      TableAnalyzer.cpp
+	      ImageAnalyzer.cpp
 	      SizeConverter.cpp
 	      DetectionSystem.cpp
 	      Position.cpp

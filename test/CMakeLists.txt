@@ -2,6 +2,7 @@ enable_testing()
 
 find_package(GTest)
 find_package(Threads REQUIRED)
+find_package( OpenCV REQUIRED)
 
 set( PROJ_TEST_NAME      "unitTests" )
 
@@ -17,6 +18,7 @@ add_executable( ${PROJ_TEST_NAME}
 		CardTest.cpp
 		ArtificialIntelligenceTest.cpp
 		DetectionSystemTest.cpp
+		ImageAnalyzerTest.cpp
 		main.cpp
 )
 
@@ -28,6 +30,7 @@ target_link_libraries( ${PROJ_TEST_NAME}
 		       ${GTEST_BOTH_LIBRARIES}
 		       ${GMOCK_LIBRARIES}
 		       ${CMAKE_THREAD_LIBS_INIT}
+		       ${OpenCV_LIBS}
 		       -lgmock
 )
 
