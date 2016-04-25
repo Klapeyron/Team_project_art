@@ -3,6 +3,7 @@
 #include "ArtificialIntelligence.hpp"
 #include "GameControlMock.hpp"
 #include "TableSnapshot.hpp"
+#include "CardOperators.hpp"
 
 TEST (ArtificialIntelligenceTest, missingSequenceCardShouldBeTakenFromStack)
 {
