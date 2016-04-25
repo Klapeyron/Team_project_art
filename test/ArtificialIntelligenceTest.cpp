@@ -165,7 +165,7 @@ TEST (ArtificialIntelligenceTest,PlayerHaveSequence_EndGame_ByPickingCardFromSta
       .Times(1);
   EXPECT_CALL(gameControl,pickCardFromHiddenStack())
       .Times(0);
-  EXPECT_CALL(gameControl,touchCard( Card(Card_Figure::FOUR, Card_Color::HEART)))
+  EXPECT_CALL(gameControl,throwMyCard( Card(Card_Figure::FOUR, Card_Color::HEART)))
       .Times(1);
   EXPECT_CALL(gameControl,endGame())
       .Times(1);
