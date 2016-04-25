@@ -1,5 +1,9 @@
  #include "GameControl.hpp"
 
+void GameControl::onUpdate(TableSnapshot const& snapshot)
+{
+  tableSnapshot = snapshot;
+}
 
 void GameControl::pickCardFromHiddenStack()
 {
