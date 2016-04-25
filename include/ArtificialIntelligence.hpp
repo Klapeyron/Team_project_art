@@ -22,6 +22,9 @@ struct Comparation
   }
 };
 
+using Sequence = std::vector<Card>;
+using Sequences = std::vector<Sequence>;
+
 class ArtificialIntelligence :public TableObserver {
   IGameControl & gameControl;
   StackType lastAction;
