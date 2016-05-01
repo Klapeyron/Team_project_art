@@ -29,6 +29,8 @@ public:
 	
 	int getId() const { return id; }
 	
+	double& Usefulness() { return usefulnessForOpponent; }
+	
 	double getUsefulnessForOpponent() const { return usefulnessForOpponent; }
 };
 
@@ -515,6 +517,14 @@ public:
 	}
 };
 
+static struct UsefulnessForOpponentComparation
+{
+	bool operator()(const AICard& a, const AICard& b)
+	{
+		return a.getUsefulnessForOpponent() < b.getUsefulnessForOpponent();
+	}
+} UsefulnessForOpponentComparation;
+
 class ArtificialIntelligence :public TableObserver
 {
   IGameControl & gameControl;
@@ -545,6 +555,8 @@ class ArtificialIntelligence :public TableObserver
   
 	void onUpdate(TableSnapshot const&);
 	
+	void EndGame(TableSnapshot const& tableSnapshot);
+	
 	std::multiset < AICard, Comparation > ReturnUnusedCards(const std::multiset < AICard, Comparation >& unusedForSeqs, const std::multiset < AICard, Comparation >& unusedForGroups) const
 	{
 		std::multiset < AICard, Comparation > unusedCards;
@@ -554,6 +566,12 @@ class ArtificialIntelligence :public TableObserver
 					unusedCards.insert(card);
 		return unusedCards;
 	}
+	
+	void CheckUsefulnessForOpponent();
+	
+	int ColorCount(const Card_Figure& figure);
+	
+	int DistanceFromFigure(const AICard& card);
 	
 	Difference ComputeDifference(std::vector<Card> playerCards);
 	
