@@ -3,7 +3,7 @@
 void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 {
 	++turnNumber;
-	if(tableSnapshot.myMove)//from TableSnapshot use: tableSnapshot.playerCards, stackCard
+	if(tableSnapshot.myMove)
 	{
 		if(firstTime)
 		{
@@ -42,14 +42,13 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		if(ungruppedCards.size())
 		{
 			gameControl.throwMyCard(lastPut = *ungruppedCards.begin());
-			lastStackCard = lastPut;
 			if(ungruppedCards.size() == 1)
 				gameControl.endGame();
 		}
 		else
-			std::cerr << "AI: Brak niepogrupowanych kart! Nie wykonano ruchu." << " nr ruchu: " << turnNumber << std::endl;
+			std::cerr << "AI: Brak niepogrupowanych kart!" << " nr ruchu: " << turnNumber << std::endl;
 	}
-	else//from TableSnapshot use: opponentTookCardFromHiddenStack, stackCard
+	else
 	{
 		if (tableSnapshot.opponentTookCardFromHiddenStack)
 			opponentCards.push_back(lastStackCard);

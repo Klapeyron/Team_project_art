@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 
+#include "CardOperators.hpp"
 #include "DetectionSystem.hpp"
 #include "TableObserverMock.hpp"
 #include "SnapshotMatcher.hpp"

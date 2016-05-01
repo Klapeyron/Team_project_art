@@ -23,7 +23,7 @@ class TableSubject {
  public:
   TableSubject();
   ~TableSubject();
-  
+
   void waitForUnfinishedJobs();
   void registerOberver(TableObserver &);
   void notify(TableSnapshot const&);
