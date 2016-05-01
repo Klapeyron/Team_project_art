@@ -32,5 +32,5 @@ TEST (DetectionSystemTest, 1366x768DetectionTest)
   output.myMove = true;
   
   EXPECT_CALL(tableObserver, onUpdate(ContainsThisSnapshot(output)));
-  detectionSystem.run();
+  detectionSystem.processTable();
 }
