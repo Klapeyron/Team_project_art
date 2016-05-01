@@ -22,6 +22,7 @@ class TableSubject {
   void processInBackground();
  public:
   TableSubject();
+  ~TableSubject();
 
   void waitForUnfinishedJobs();
   void registerOberver(TableObserver &);

@@ -5,6 +5,11 @@ TableSubject::TableSubject() :canIWork{true}
   thread = std::thread(&TableSubject::processInBackground,this);
 }
 
+TableSubject::~TableSubject()
+{
+  waitForUnfinishedJobs();
+}
+
 void TableSubject::waitForUnfinishedJobs()
 {
   if(thread.joinable()) thread.join();
