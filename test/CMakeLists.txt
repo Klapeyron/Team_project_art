@@ -6,11 +6,9 @@ find_package( OpenCV REQUIRED)
 
 set( PROJ_TEST_NAME      "unitTests" )
 
-include_directories( ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/include ${GTEST_INCLUDE_DIR})
+include_directories( ${CMAKE_SOURCE_DIR}/include ${GTEST_INCLUDE_DIR})
 
-include_directories( ${CMAKE_SOURCE_DIR}/src
-		     ${CMAKE_SOURCE_DIR}/include
-		     ${GTEST_INCLUDE_DIRS}
+include_directories( ${GTEST_INCLUDE_DIRS}
 		     ${GMOCK_INCLUDE_DIRS}
 		    )
 
