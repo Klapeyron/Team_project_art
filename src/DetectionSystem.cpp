@@ -6,7 +6,7 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
     redCardTemplates[i] = cv::imread(templatesDirectory + redTemplateFileNames[i]);
 
   for(auto i = 0u; i < blackTemplateFileNames.size(); i++)
-    redCardTemplates[i] = cv::imread(templatesDirectory + blackTemplateFileNames[i]);
+    blackCardTemplates[i] = cv::imread(templatesDirectory + blackTemplateFileNames[i]);
 }
 
 void DetectionSystem::processTable()
@@ -15,10 +15,10 @@ void DetectionSystem::processTable()
   // TODO: select roi for upper/lover cards, stack area
 
   TableSnapshot tableSnapshot;
-  
+
   // TODO: detect turn
   // TODO: detect stack card
-  
+
   // TODO: process upper cards
   // TODO: process lower cards
 

@@ -24,5 +24,3 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   DetectionSystem(std::string const& imageFilePath);
   void processTable();
 };
-
-
