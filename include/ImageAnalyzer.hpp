@@ -3,7 +3,6 @@
 #include <tuple>
 #include <opencv/cv.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include "SizeConverter.hpp"
 #include "Position.hpp"
 
 const double THRESHOLD = 0.90;
