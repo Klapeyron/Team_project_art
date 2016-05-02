@@ -13,11 +13,23 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   const std::array<std::string, 13> redTemplateFileNames
   {{"Ar.tiff","2r.tiff","3r.tiff","4r.tiff","5r.tiff","6r.tiff","7r.tiff","8r.tiff","9r.tiff","10r.tiff","Jr.tiff","Qr.tiff","Kr.tiff"}};
 
+  const std::string leftUpperCornerFileName = "LUcorner.tiff";
+  const std::string rightUpperCornerFileName = "RUcorner.tiff";
+  const std::string myTurnFileName = "myTurn.tiff";
+  
   const std::string tableImageFilePath;
   const std::string templatesDirectory = "../templates/";
 
   std::array<Image, 13> blackCardTemplates;
   std::array<Image, 13> redCardTemplates;
+  Image leftUpperCorner, rightUpperCorner, myTurn;
+
+  Image cutGreenField(Image const& tableImage);
+  Image cutUpperCards(Image const& greenField);
+  Image cutLowerCards(Image const& greenField);
+  Image cutEnemyCards(Image const& greenField);
+  Image cutMiddlePart(Image const& greenField);
+  Image cutStackPart(Image const& greenField);
  public:
   DetectionSystem(std::string const& imageFilePath);
   void processTable();
