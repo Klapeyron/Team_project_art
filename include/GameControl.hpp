@@ -11,7 +11,7 @@
 #include <iostream>
 #include <string.h>
 
-class GameControl :public IGameControl 
+class GameControl :public IGameControl, public TableObserver
 {
 private:
   void setPosition(const Position & position);
