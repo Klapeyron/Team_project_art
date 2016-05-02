@@ -13,7 +13,7 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
 
   for(auto i = 0u; i < redStackTemplateFileNames.size(); i++)
     redStackCardTemplates[i] = cv::imread(templatesDirectory + redStackTemplateFileNames[i]);
-  
+
   for(auto i = 0u; i < blackStackTemplateFileNames.size(); i++)
     blackStackCardTemplates[i] = cv::imread(templatesDirectory + blackStackTemplateFileNames[i]);
 
@@ -75,10 +75,14 @@ void DetectionSystem::processTable()
   tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(diamondCards.begin()), std::make_move_iterator(diamondCards.end()));
   tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(spadeCards.begin()),   std::make_move_iterator(spadeCards.end()));
   tableSnapshot.stackCard = findStackCard(stack);
-  
+
   bool myTurnMatched = false;
   std::tie(myTurnMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
   tableSnapshot.myMove = myTurnMatched;
+
+  if(previousTableSnapshot == tableSnapshot)
+    return;
+  previousTableSnapshot = tableSnapshot;
   
   TableSubject::notify(tableSnapshot);
   TableSubject::waitForUnfinishedJobs();
@@ -106,7 +110,7 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
 {
   Card_Color color = Card_Color::None;
   Position stackCardPosition;
-  
+
   for(auto it = stackColorTemplates.begin(); it != stackColorTemplates.end(); ++it)
   {
     bool colorMatched = false;
