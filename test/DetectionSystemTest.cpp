@@ -50,6 +50,7 @@ TEST (DetectionSystemTest, 1680x1050DetectionTest)
   output.playerCards.emplace_back(Card_Figure::NINE, Card_Color::CLUB);
   output.playerCards.emplace_back(Card_Figure::KING, Card_Color::CLUB);
 
+  output.playerCards.emplace_back(Card_Figure::A, Card_Color::DIAMOND);
   output.playerCards.emplace_back(Card_Figure::FIVE, Card_Color::DIAMOND);
   
   output.playerCards.emplace_back(Card_Figure::A, Card_Color::SPADE);
