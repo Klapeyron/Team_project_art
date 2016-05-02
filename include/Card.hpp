@@ -27,7 +27,11 @@ class Card :public Position {
   Card_Figure figure;
  public:
   constexpr explicit Card(Card_Figure newFigure = Card_Figure::None,
-                          Card_Color newColor = Card_Color::None) :color(newColor), figure(newFigure) {};
+                          Card_Color newColor = Card_Color::None,
+                          Position position = Position(0,0))
+      :color(newColor),
+       figure(newFigure),
+       Position(position) {};
   constexpr Card_Color getColor() const { return color; }
   constexpr Card_Figure getFigure() const { return figure; }
   bool operator ==(const Card& card) const;
