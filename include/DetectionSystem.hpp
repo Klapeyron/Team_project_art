@@ -31,6 +31,8 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   Image cutEnemyCards(Image const& greenField);
   Image cutMiddlePart(Image const& greenField);
   Image cutStackPart(Image const& greenField);
+
+  std::vector<Card> getCardsFromSelectedArea(std::array<Image,13> const& imageTemplates, Image const& areaImage, Card_Color colorOfCardsInArea);
  public:
   DetectionSystem(std::string const& imageFilePath);
   void processTable();

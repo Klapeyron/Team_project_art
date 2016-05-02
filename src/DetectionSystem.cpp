@@ -56,75 +56,15 @@ void DetectionSystem::processTable()
 
   TableSnapshot tableSnapshot;
 
-  // cv::namedWindow( "image", CV_WINDOW_AUTOSIZE );
-  
-  // cv::imshow( "image", greenField );
-  // cv::waitKey();
+  auto heartCards = getCardsFromSelectedArea(redCardTemplates, upperCards, Card_Color::HEART);
+  auto clubCards = getCardsFromSelectedArea(blackCardTemplates, upperCards, Card_Color::CLUB);
+  auto diamondCards = getCardsFromSelectedArea(redCardTemplates, lowerCards, Card_Color::DIAMOND);
+  auto spadeCards = getCardsFromSelectedArea(blackCardTemplates, lowerCards, Card_Color::SPADE);
 
-  // cv::imshow( "image", upperCards );
-  // cv::waitKey();
-
-  // cv::imshow( "image", lowerCards );
-  // cv::waitKey();
-
-  // cv::imshow( "image", enemyCards );
-  // cv::waitKey();
-
-  // cv::imshow( "image", middle );
-  // cv::waitKey();
-
-  // cv::imshow( "image", stack );
-  // cv::waitKey();
-  // TODO: detect stack card
-
-  for(auto it = redCardTemplates.begin(); it != redCardTemplates.end(); ++it)
-  {
-    bool cardMatched = false;
-    Position position;
-    std::tie(cardMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(upperCards, *it);
-    if(cardMatched)
-    {
-      auto figure = static_cast<Card_Figure>(std::distance(redCardTemplates.begin(),it) + 1);
-      tableSnapshot.playerCards.emplace_back(figure, Card_Color::HEART);
-    }
-  }
-
-  for(auto it = blackCardTemplates.begin(); it != blackCardTemplates.end(); ++it)
-  {
-    bool cardMatched = false;
-    Position position;
-    std::tie(cardMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(upperCards, *it);
-    if(cardMatched)
-    {
-      auto figure = static_cast<Card_Figure>(std::distance(blackCardTemplates.begin(),it) + 1);
-      tableSnapshot.playerCards.emplace_back(figure, Card_Color::CLUB);
-    }
-  }
-
-  for(auto it = redCardTemplates.begin(); it != redCardTemplates.end(); ++it)
-  {
-    bool cardMatched = false;
-    Position position;
-    std::tie(cardMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(lowerCards, *it);
-    if(cardMatched)
-    {
-      auto figure = static_cast<Card_Figure>(std::distance(redCardTemplates.begin(),it) + 1);
-      tableSnapshot.playerCards.emplace_back(figure, Card_Color::DIAMOND);
-    }
-  }
-
-  for(auto it = blackCardTemplates.begin(); it != blackCardTemplates.end(); ++it)
-  {
-    bool cardMatched = false;
-    Position position;
-    std::tie(cardMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(lowerCards, *it);
-    if(cardMatched)
-    {
-      auto figure = static_cast<Card_Figure>(std::distance(blackCardTemplates.begin(),it) + 1);
-      tableSnapshot.playerCards.emplace_back(figure, Card_Color::SPADE);
-    }
-  }
-
+  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(heartCards.begin()),   std::make_move_iterator(heartCards.end()));
+  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(clubCards.begin()),    std::make_move_iterator(clubCards.end()));
+  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(diamondCards.begin()), std::make_move_iterator(diamondCards.end()));
+  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(spadeCards.begin()),   std::make_move_iterator(spadeCards.end()));
   // TODO: stack card recognize
   // tableSnapshot.stackCard = Card(Card_Figure::JACK,Card_Color::SPADE);
   
@@ -134,4 +74,22 @@ void DetectionSystem::processTable()
   
   TableSubject::notify(tableSnapshot);
   TableSubject::waitForUnfinishedJobs();
+}
+
+std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13> const& imageTemplates, Image const& areaImage, Card_Color colorOfCardsInArea)
+{
+  std::vector<Card> foundCards;
+  for(auto it = imageTemplates.begin(); it != imageTemplates.end(); ++it)
+  {
+    bool cardMatched = false;
+    Position position;
+    std::tie(cardMatched, position) = ImageAnalyzer::containsImageTemplate(areaImage, *it);
+    if(cardMatched)
+    {
+      auto figure = static_cast<Card_Figure>(std::distance(imageTemplates.begin(),it) + 1);
+      position.setNewPosition(position.getX() + leftUpperPosition.getX(), position.getY() + leftUpperPosition.getY());
+      foundCards.emplace_back(figure, colorOfCardsInArea);
+    }
+  }
+  return foundCards;
 }
