@@ -87,7 +87,7 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13>
     if(cardMatched)
     {
       auto figure = static_cast<Card_Figure>(std::distance(imageTemplates.begin(),it) + 1);
-      position.setNewPosition(position.getX() + leftUpperPosition.getX(), position.getY() + leftUpperPosition.getY());
+      position.setNewPosition(position.getX() + leftUpperPosition.getX() + 5, position.getY() + leftUpperPosition.getY() + 5);
       foundCards.emplace_back(figure, colorOfCardsInArea);
     }
   }
