@@ -105,11 +105,12 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13>
 Card DetectionSystem::findStackCard(Image const& stackArea)
 {
   Card_Color color = Card_Color::None;
-
+  Position stackCardPosition;
+  
   for(auto it = stackColorTemplates.begin(); it != stackColorTemplates.end(); ++it)
   {
     bool colorMatched = false;
-    std::tie(colorMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
+    std::tie(colorMatched, stackCardPosition) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
     if(colorMatched)
       color = static_cast<Card_Color>(std::distance(stackColorTemplates.begin(),it) + 1);
   }
@@ -121,7 +122,7 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
     if(colorMatched)
     {
       auto figure = static_cast<Card_Figure>(std::distance(blackStackCardTemplates.begin(),it) + 1);
-      return Card(figure,color);
+      return Card(figure,color,stackCardPosition);
     }
   }
 
@@ -132,7 +133,7 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
     if(colorMatched)
     {
       auto figure = static_cast<Card_Figure>(std::distance(redStackCardTemplates.begin(),it) + 1);
-      return Card(figure,color);
+      return Card(figure,color,stackCardPosition);
     }
   }
   return Card(Card_Figure::None, Card_Color::None);
