@@ -2,7 +2,7 @@
 
 #include "ImageAnalyzer.hpp"
 
-TEST (ImageAnalyzerTest, blackJDetectionTest)
+TEST (DISABLED_ImageAnalyzerTest, blackJDetectionTest)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1366x768.png");
   auto templateImage = cv::imread("../templates/Jb.tiff");
@@ -14,7 +14,7 @@ TEST (ImageAnalyzerTest, blackJDetectionTest)
   EXPECT_TRUE(matched);
 }
 
-TEST (ImageAnalyzerTest, hiddenRed5DetectionTest)
+TEST (DISABLED_ImageAnalyzerTest, hiddenRed5DetectionTest)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1366x768.png");
   auto templateImage = cv::imread("../templates/5r.tiff");
@@ -26,7 +26,7 @@ TEST (ImageAnalyzerTest, hiddenRed5DetectionTest)
   EXPECT_TRUE(matched);
 }
 
-TEST (ImageAnalyzerTest, multiple8DetectionTest)
+TEST (DISABLED_ImageAnalyzerTest, multiple8DetectionTest)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1366x768.png");
   auto templateImageBlack = cv::imread("../templates/8b.tiff");
@@ -41,7 +41,7 @@ TEST (ImageAnalyzerTest, multiple8DetectionTest)
   EXPECT_TRUE(containsRed);
 }
 
-TEST (ImageAnalyzerTest, redQueenDetectionTest_notMatched)
+TEST (DISABLED_ImageAnalyzerTest, redQueenDetectionTest_notMatched)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1366x768.png");
   auto templateImage = cv::imread("../templates/Qr.tiff");
@@ -54,7 +54,7 @@ TEST (ImageAnalyzerTest, redQueenDetectionTest_notMatched)
   EXPECT_FALSE(matched);
 }
 
-TEST (ImageAnalyzerTest, blackFiguresMatchTest_notMatched)
+TEST (DISABLED_ImageAnalyzerTest, blackFiguresMatchTest_notMatched)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1366x768.png");
 
@@ -91,7 +91,7 @@ TEST (ImageAnalyzerTest, blackFiguresMatchTest_notMatched)
   EXPECT_FALSE(matchedKb);
 }
 
-TEST (ImageAnalyzerTest, redFiguresMatchTest_notMatched)
+TEST (DISABLED_ImageAnalyzerTest, redFiguresMatchTest_notMatched)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1366x768.png");
   ImageAnalyzer imageAnalyzer;
@@ -127,7 +127,7 @@ TEST (ImageAnalyzerTest, redFiguresMatchTest_notMatched)
   EXPECT_TRUE(matchedKc);
 }
 
-TEST (ImageAnalyzerTest, 1680x1050Test_fullSnapshot)
+TEST (DISABLED_ImageAnalyzerTest, 1680x1050Test_fullSnapshot)
 {
   auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1680x1050.png");
   ImageAnalyzer imageAnalyzer;
