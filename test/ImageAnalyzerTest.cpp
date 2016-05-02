@@ -131,3 +131,71 @@ TEST (ImageAnalyzerTest, redFiguresMatchTest_notMatched)
   EXPECT_FALSE(matchedQc);
   EXPECT_TRUE(matchedKc);
 }
+
+TEST (ImageAnalyzerTest, 1680x1050Test_fullSnapshot)
+{
+  auto sourceImage = cv::imread("../test/DetectionSystemImages/tableSnapshot1680x1050.png");
+  ImageAnalyzer imageAnalyzer;
+  bool matchedAc, matched2c, matched3c, matched4c, matched5c, matched6c, matched7c,
+      matched8c, matched9c, matched10c, matchedJc, matchedQc, matchedKc = false;
+  bool matchedAb, matched2b, matched3b, matched4b, matched5b, matched6b, matched7b,
+      matched8b, matched9b, matched10b, matchedJb, matchedQb, matchedKb = false;
+
+  Position position;
+
+  std::tie(matchedAc, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Ar.tiff"));
+  std::tie(matched2c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/2r.tiff"));
+  std::tie(matched3c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/3r.tiff"));
+  std::tie(matched4c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/4r.tiff"));
+  std::tie(matched5c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/5r.tiff"));
+  std::tie(matched6c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/6r.tiff"));
+  std::tie(matched7c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/7r.tiff"));
+  std::tie(matched8c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/8r.tiff"));
+  std::tie(matched9c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/9r.tiff"));
+  std::tie(matched10c, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/10r.tiff"));
+  std::tie(matchedJc, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Jr.tiff"));
+  std::tie(matchedQc, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Qr.tiff"));
+  std::tie(matchedKc, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Kr.tiff"));
+
+  std::tie(matchedAb, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Ab.tiff"));
+  std::tie(matched2b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/2b.tiff"));
+  std::tie(matched3b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/3b.tiff"));
+  std::tie(matched4b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/4b.tiff"));
+  std::tie(matched5b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/5b.tiff"));
+  std::tie(matched6b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/6b.tiff"));
+  std::tie(matched7b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/7b.tiff"));
+  std::tie(matched8b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/8b.tiff"));
+  std::tie(matched9b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/9b.tiff"));
+  std::tie(matched10b, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/10b.tiff"));
+  std::tie(matchedJb, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Jb.tiff"));
+  std::tie(matchedQb, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Qb.tiff"));
+  std::tie(matchedKb, position) = imageAnalyzer.containsImageTemplate(sourceImage, cv::imread("../templates/Kb.tiff"));
+  
+  EXPECT_TRUE(matchedAc);
+  EXPECT_FALSE(matched2c);
+  EXPECT_FALSE(matched3c);
+  EXPECT_FALSE(matched4c);
+  EXPECT_TRUE(matched5c);
+  EXPECT_FALSE(matched6c);
+  EXPECT_FALSE(matched7c);
+  EXPECT_FALSE(matched8c);
+  EXPECT_FALSE(matched9c);
+  EXPECT_FALSE(matched10c);
+  EXPECT_FALSE(matchedJc);
+  EXPECT_FALSE(matchedQc);
+  EXPECT_FALSE(matchedKc);
+
+  EXPECT_TRUE(matchedAb);
+  EXPECT_TRUE(matched2b);
+  EXPECT_TRUE(matched3b);
+  EXPECT_FALSE(matched4b);
+  EXPECT_FALSE(matched5b);
+  EXPECT_TRUE(matched6b);
+  EXPECT_TRUE(matched7b);
+  EXPECT_TRUE(matched8b);
+  EXPECT_TRUE(matched9b);
+  EXPECT_FALSE(matched10b);
+  EXPECT_FALSE(matchedJb);
+  EXPECT_FALSE(matchedQb);
+  EXPECT_TRUE(matchedKb);
+}
