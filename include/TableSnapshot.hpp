@@ -7,7 +7,7 @@ struct TableSnapshot {
   std::vector<Card> playerCards;
   Card stackCard;
   bool myMove = true;
-  bool opponentTookCardFromHiddenStack;
+  bool opponentTookCardFromHiddenStack = false;
   bool operator ==(const TableSnapshot& card) const;
   bool operator !=(const TableSnapshot& card) const;
 };

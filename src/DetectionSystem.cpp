@@ -3,7 +3,8 @@
 DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFilePath(imageFilePath),
                                                                     leftUpperCorner(cv::imread(templatesDirectory + leftUpperCornerFileName)),
                                                                     rightUpperCorner(cv::imread(templatesDirectory + rightUpperCornerFileName)),
-                                                                    myTurn(cv::imread(templatesDirectory + myTurnFileName))
+                                                                    myTurn(cv::imread(templatesDirectory + myTurnFileName)),
+                                                                    previousTableSnapshot()
 {
   for(auto i = 0u; i < redTemplateFileNames.size(); i++)
     redCardTemplates[i] = cv::imread(templatesDirectory + redTemplateFileNames[i]);
