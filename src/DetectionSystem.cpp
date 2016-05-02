@@ -10,6 +10,15 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
 
   for(auto i = 0u; i < blackTemplateFileNames.size(); i++)
     blackCardTemplates[i] = cv::imread(templatesDirectory + blackTemplateFileNames[i]);
+
+  for(auto i = 0u; i < redStackTemplateFileNames.size(); i++)
+    redStackCardTemplates[i] = cv::imread(templatesDirectory + redStackTemplateFileNames[i]);
+  
+  for(auto i = 0u; i < blackStackTemplateFileNames.size(); i++)
+    blackStackCardTemplates[i] = cv::imread(templatesDirectory + blackStackTemplateFileNames[i]);
+
+  for(auto i = 0u; i < stackColorFileNames.size(); i++)
+    stackColorTemplates[i] = cv::imread(templatesDirectory + stackColorFileNames[i]);
 }
 
 Image DetectionSystem::cutGreenField(Image const& tableImage)
@@ -65,8 +74,7 @@ void DetectionSystem::processTable()
   tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(clubCards.begin()),    std::make_move_iterator(clubCards.end()));
   tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(diamondCards.begin()), std::make_move_iterator(diamondCards.end()));
   tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(spadeCards.begin()),   std::make_move_iterator(spadeCards.end()));
-  // TODO: stack card recognize
-  // tableSnapshot.stackCard = Card(Card_Figure::JACK,Card_Color::SPADE);
+  tableSnapshot.stackCard = findStackCard(stack);
   
   bool myTurnMatched = false;
   std::tie(myTurnMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
@@ -92,4 +100,40 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13>
     }
   }
   return foundCards;
+}
+
+Card DetectionSystem::findStackCard(Image const& stackArea)
+{
+  Card_Color color = Card_Color::None;
+
+  for(auto it = stackColorTemplates.begin(); it != stackColorTemplates.end(); ++it)
+  {
+    bool colorMatched = false;
+    std::tie(colorMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
+    if(colorMatched)
+      color = static_cast<Card_Color>(std::distance(stackColorTemplates.begin(),it) + 1);
+  }
+
+  for(auto it = blackStackCardTemplates.begin(); it != blackStackCardTemplates.end(); ++it)
+  {
+    bool colorMatched = false;
+    std::tie(colorMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
+    if(colorMatched)
+    {
+      auto figure = static_cast<Card_Figure>(std::distance(blackStackCardTemplates.begin(),it) + 1);
+      return Card(figure,color);
+    }
+  }
+
+  for(auto it = redStackCardTemplates.begin(); it != redStackCardTemplates.end(); ++it)
+  {
+    bool colorMatched = false;
+    std::tie(colorMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
+    if(colorMatched)
+    {
+      auto figure = static_cast<Card_Figure>(std::distance(redStackCardTemplates.begin(),it) + 1);
+      return Card(figure,color);
+    }
+  }
+  return Card(Card_Figure::None, Card_Color::None);
 }
