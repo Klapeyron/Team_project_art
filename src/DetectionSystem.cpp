@@ -15,7 +15,6 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
 Image DetectionSystem::cutGreenField(Image const& tableImage)
 {
   bool matched = false;
-  Position leftUpperPosition;
   std::tie(matched, leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, leftUpperCorner);
   return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
 }

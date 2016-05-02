@@ -23,7 +23,8 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   std::array<Image, 13> blackCardTemplates;
   std::array<Image, 13> redCardTemplates;
   Image leftUpperCorner, rightUpperCorner, myTurn;
-
+  Position leftUpperPosition;
+  
   Image cutGreenField(Image const& tableImage);
   Image cutUpperCards(Image const& greenField);
   Image cutLowerCards(Image const& greenField);
