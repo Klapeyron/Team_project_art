@@ -1,5 +1,4 @@
 #include "ImageAnalyzer.hpp"
-#include <iostream>
 
 std::tuple<bool, Position> ImageAnalyzer::containsImageTemplate(Image const& image, Image const& templ)
 {
@@ -12,6 +11,6 @@ std::tuple<bool, Position> ImageAnalyzer::containsImageTemplate(Image const& ima
   
   Position position(maxLoc.x, maxLoc.y);
   auto imageMatched = maxVal >= THRESHOLD;
-  std::cout << maxVal << std::endl;
+
   return std::make_tuple(imageMatched, position);
 }

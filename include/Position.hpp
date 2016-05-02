@@ -2,10 +2,10 @@
 
 class Position
 {
-  int x,y;
+  unsigned x,y;
  public:
-  constexpr explicit Position(int posX = 0, int posY = 0) :x(posX), y(posY) {}
-  void setNewPosition(int newX, int newY);
-  int getX()const;
-  int getY()const ;
+  constexpr explicit Position(unsigned posX = 0, unsigned posY = 0) :x(posX), y(posY) {}
+  void setNewPosition(unsigned newX, unsigned newY);
+  unsigned getX()const;
+  unsigned getY()const ;
 };

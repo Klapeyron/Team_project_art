@@ -1,17 +1,17 @@
 #include "Position.hpp"
 
-void Position::setNewPosition(int newX, int newY)
+void Position::setNewPosition(unsigned newX, unsigned newY)
 {
   x = newX;
   y = newY;
 }
 
-int Position::getX()const
+unsigned Position::getX() const
 {
   return x;
 }
 
-int Position::getY()const
+unsigned Position::getY() const
 {
   return y;
 }
