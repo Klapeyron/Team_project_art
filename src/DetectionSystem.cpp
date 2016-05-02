@@ -4,7 +4,8 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
                                                                     leftUpperCorner(cv::imread(templatesDirectory + leftUpperCornerFileName)),
                                                                     rightUpperCorner(cv::imread(templatesDirectory + rightUpperCornerFileName)),
                                                                     myTurn(cv::imread(templatesDirectory + myTurnFileName)),
-                                                                    previousTableSnapshot()
+                                                                    previousTableSnapshot(),
+                                                                    leftUpperPosition()
 {
   for(auto i = 0u; i < redTemplateFileNames.size(); i++)
     redCardTemplates[i] = cv::imread(templatesDirectory + redTemplateFileNames[i]);
@@ -54,58 +55,6 @@ Image DetectionSystem::cutStackPart(Image const& greenField)
   return greenField(cv::Rect(600, 175, 85, 100));
 }
 
-void DetectionSystem::processTable()
-{
-  Image tableImage = cv::imread(tableImageFilePath);
-  auto greenField = cutGreenField(tableImage);
-  auto upperCards = cutUpperCards(greenField);
-  auto lowerCards = cutLowerCards(greenField);
-  auto enemyCards = cutEnemyCards(greenField);
-  auto middle = cutMiddlePart(greenField);
-  auto stack = cutStackPart(greenField);
-
-  TableSnapshot tableSnapshot;
-
-  auto stackCardHandle = std::async(std::launch::async, [&]()
-                                    {
-                                      return findStackCard(stack);
-                                    });
-
-  auto upperCardsHandle = std::async(std::launch::async, [&]()
-                                     {
-                                       auto heartCards = getCardsFromSelectedArea(redCardTemplates, upperCards, Card_Color::HEART);
-                                       auto clubCards = getCardsFromSelectedArea(blackCardTemplates, upperCards, Card_Color::CLUB);
-                                       std::copy(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
-                                       return heartCards;
-                                     });
-
-  auto lowerCardsHandle = std::async(std::launch::async, [&]()
-                                     {
-                                       auto diamondCards = getCardsFromSelectedArea(redCardTemplates, lowerCards, Card_Color::DIAMOND);
-                                       auto spadeCards = getCardsFromSelectedArea(blackCardTemplates, lowerCards, Card_Color::SPADE);
-                                       std::copy(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
-                                       return diamondCards;
-                                     });
-  
-  auto foundUpperCards = upperCardsHandle.get();
-  auto foundLowerCards = lowerCardsHandle.get();
-  tableSnapshot.stackCard = stackCardHandle.get();
-  
-  std::copy(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
-  std::copy(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
-
-  bool myTurnMatched = false;
-  std::tie(myTurnMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
-  tableSnapshot.myMove = myTurnMatched;
-
-  if(previousTableSnapshot == tableSnapshot)
-    return;
-  previousTableSnapshot = tableSnapshot;
-  
-  TableSubject::notify(tableSnapshot);
-  TableSubject::waitForUnfinishedJobs();
-}
-
 std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13> const& imageTemplates, Image const& areaImage, Card_Color colorOfCardsInArea)
 {
   std::vector<Card> foundCards;
@@ -118,7 +67,7 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13>
     {
       auto figure = static_cast<Card_Figure>(std::distance(imageTemplates.begin(),it) + 1);
       position.setNewPosition(position.getX() + leftUpperPosition.getX() + 5, position.getY() + leftUpperPosition.getY() + 5);
-      foundCards.emplace_back(figure, colorOfCardsInArea);
+      foundCards.emplace_back(figure, colorOfCardsInArea, position);
     }
   }
   return foundCards;
@@ -159,4 +108,62 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
     }
   }
   return Card(Card_Figure::None, Card_Color::None);
+}
+
+void DetectionSystem::processTable()
+{
+  Image tableImage = cv::imread(tableImageFilePath);
+  auto greenField = Image(714, 597, CV_32F, cv::Scalar::all(0));
+
+  if(leftUpperPosition.getX() == 0u and leftUpperPosition.getY() == 0u)
+    greenField = cutGreenField(tableImage);
+  else
+    greenField = tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
+
+  auto upperCards = cutUpperCards(greenField);
+  auto lowerCards = cutLowerCards(greenField);
+  auto enemyCards = cutEnemyCards(greenField);
+  auto middle = cutMiddlePart(greenField);
+  auto stack = cutStackPart(greenField);
+
+  TableSnapshot tableSnapshot;
+
+  auto stackCardHandle = std::async(std::launch::async, [&]()
+                                    {
+                                      return findStackCard(stack);
+                                    });
+
+  auto upperCardsHandle = std::async(std::launch::async, [&]()
+                                     {
+                                       auto heartCards = getCardsFromSelectedArea(redCardTemplates, upperCards, Card_Color::HEART);
+                                       auto clubCards = getCardsFromSelectedArea(blackCardTemplates, upperCards, Card_Color::CLUB);
+                                       std::move(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
+                                       return heartCards;
+                                     });
+
+  auto lowerCardsHandle = std::async(std::launch::async, [&]()
+                                     {
+                                       auto diamondCards = getCardsFromSelectedArea(redCardTemplates, lowerCards, Card_Color::DIAMOND);
+                                       auto spadeCards = getCardsFromSelectedArea(blackCardTemplates, lowerCards, Card_Color::SPADE);
+                                       std::move(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
+                                       return diamondCards;
+                                     });
+
+  auto foundUpperCards = upperCardsHandle.get();
+  auto foundLowerCards = lowerCardsHandle.get();
+  tableSnapshot.stackCard = stackCardHandle.get();
+
+  std::move(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
+  std::move(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
+
+  bool myTurnMatched = false;
+  std::tie(myTurnMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
+  tableSnapshot.myMove = myTurnMatched;
+
+  if(previousTableSnapshot == tableSnapshot)
+    return;
+  previousTableSnapshot = tableSnapshot;
+
+  TableSubject::notify(tableSnapshot);
+  TableSubject::waitForUnfinishedJobs();
 }
