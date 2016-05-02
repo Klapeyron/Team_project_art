@@ -6,6 +6,7 @@
 #include "ImageAnalyzer.hpp"
 
 #include <array>
+#include <future>
 
 class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyzer {
   const std::array<std::string, 13> blackTemplateFileNames

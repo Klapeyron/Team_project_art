@@ -66,16 +66,33 @@ void DetectionSystem::processTable()
 
   TableSnapshot tableSnapshot;
 
-  auto heartCards = getCardsFromSelectedArea(redCardTemplates, upperCards, Card_Color::HEART);
-  auto clubCards = getCardsFromSelectedArea(blackCardTemplates, upperCards, Card_Color::CLUB);
-  auto diamondCards = getCardsFromSelectedArea(redCardTemplates, lowerCards, Card_Color::DIAMOND);
-  auto spadeCards = getCardsFromSelectedArea(blackCardTemplates, lowerCards, Card_Color::SPADE);
+  auto stackCardHandle = std::async(std::launch::async, [&]()
+                                    {
+                                      return findStackCard(stack);
+                                    });
 
-  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(heartCards.begin()),   std::make_move_iterator(heartCards.end()));
-  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(clubCards.begin()),    std::make_move_iterator(clubCards.end()));
-  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(diamondCards.begin()), std::make_move_iterator(diamondCards.end()));
-  tableSnapshot.playerCards.insert(tableSnapshot.playerCards.end(), std::make_move_iterator(spadeCards.begin()),   std::make_move_iterator(spadeCards.end()));
-  tableSnapshot.stackCard = findStackCard(stack);
+  auto upperCardsHandle = std::async(std::launch::async, [&]()
+                                     {
+                                       auto heartCards = getCardsFromSelectedArea(redCardTemplates, upperCards, Card_Color::HEART);
+                                       auto clubCards = getCardsFromSelectedArea(blackCardTemplates, upperCards, Card_Color::CLUB);
+                                       std::copy(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
+                                       return heartCards;
+                                     });
+
+  auto lowerCardsHandle = std::async(std::launch::async, [&]()
+                                     {
+                                       auto diamondCards = getCardsFromSelectedArea(redCardTemplates, lowerCards, Card_Color::DIAMOND);
+                                       auto spadeCards = getCardsFromSelectedArea(blackCardTemplates, lowerCards, Card_Color::SPADE);
+                                       std::copy(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
+                                       return diamondCards;
+                                     });
+  
+  auto foundUpperCards = upperCardsHandle.get();
+  auto foundLowerCards = lowerCardsHandle.get();
+  tableSnapshot.stackCard = stackCardHandle.get();
+  
+  std::copy(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
+  std::copy(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
 
   bool myTurnMatched = false;
   std::tie(myTurnMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
