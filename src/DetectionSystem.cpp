@@ -163,6 +163,5 @@ void DetectionSystem::processTable()
   if(previousTableSnapshot == tableSnapshot)
     return;
   previousTableSnapshot = tableSnapshot;
-
   TableSubject::notify(tableSnapshot);
 }
