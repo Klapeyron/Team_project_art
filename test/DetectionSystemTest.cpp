@@ -33,6 +33,7 @@ TEST (DetectionSystemTest, 1366x768DetectionTest)
   
   EXPECT_CALL(tableObserver, onUpdate(ContainsThisSnapshot(output)));
   detectionSystem.processTable();
+  detectionSystem.waitForUnfinishedJobs();
 }
 
 TEST (DetectionSystemTest, 1680x1050DetectionTest)
@@ -62,4 +63,5 @@ TEST (DetectionSystemTest, 1680x1050DetectionTest)
   
   EXPECT_CALL(tableObserver, onUpdate(ContainsThisSnapshot(output)));
   detectionSystem.processTable();
+  detectionSystem.waitForUnfinishedJobs();
 }

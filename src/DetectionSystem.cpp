@@ -165,5 +165,4 @@ void DetectionSystem::processTable()
   previousTableSnapshot = tableSnapshot;
 
   TableSubject::notify(tableSnapshot);
-  TableSubject::waitForUnfinishedJobs();
 }

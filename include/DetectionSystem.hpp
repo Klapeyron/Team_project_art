@@ -44,10 +44,10 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   Image cutStackPart(Image const& greenField);
 
   TableSnapshot previousTableSnapshot;
-  
   Card findStackCard(Image const& stackArea);
   std::vector<Card> getCardsFromSelectedArea(std::array<Image,13> const& imageTemplates, Image const& areaImage, Card_Color colorOfCardsInArea);
  public:
   DetectionSystem(std::string const& imageFilePath);
   void processTable();
+  using TableSubject::waitForUnfinishedJobs;
 };
