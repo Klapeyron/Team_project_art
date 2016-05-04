@@ -8,6 +8,7 @@ add_library ( libRummyGin
 	      PrintScreenMaker.cpp
 	      TableSubject.cpp
 	      ImageAnalyzer.cpp
+	      AreaOfInterestCutter.cpp
 	      DetectionSystem.cpp
 	      Position.cpp
 	      ImageTemplates.cpp

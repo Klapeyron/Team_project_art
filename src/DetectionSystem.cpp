@@ -5,37 +5,6 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
                                                                     previousTableSnapshot(),
                                                                     leftUpperPosition() {}
 
-Image DetectionSystem::cutGreenField(Image const& tableImage)
-{
-  bool matched = false;
-  std::tie(matched, leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, ImageTemplates::leftUpperCorner);
-  return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
-}
-
-Image DetectionSystem::cutUpperCards(Image const& greenField)
-{
-  return greenField(cv::Rect(112, 326, 424, 85));
-}
-
-Image DetectionSystem::cutLowerCards(Image const& greenField)
-{
-  return greenField(cv::Rect(112, 409, 424, 80));
-}
-
-Image DetectionSystem::cutEnemyCards(Image const& greenField)
-{
-  return greenField(cv::Rect(238, 13, 239, 106));
-}
-
-Image DetectionSystem::cutMiddlePart(Image const& greenField)
-{
-  return greenField(cv::Rect(187, 123, 333, 218));
-}
-
-Image DetectionSystem::cutStackPart(Image const& greenField)
-{
-  return greenField(cv::Rect(600, 175, 85, 100));
-}
 
 std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13> const& imageTemplates, Image const& areaImage, Card_Color colorOfCardsInArea)
 {
@@ -53,6 +22,13 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13>
     }
   }
   return foundCards;
+}
+
+Image DetectionSystem::cutGreenField(Image const& tableImage)
+{
+  bool matched = false;
+  std::tie(matched, leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, ImageTemplates::leftUpperCorner);
+  return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
 }
 
 Card DetectionSystem::findStackCard(Image const& stackArea)
@@ -102,11 +78,11 @@ void DetectionSystem::processTable()
   else
     greenField = tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
 
-  auto upperCards = cutUpperCards(greenField);
-  auto lowerCards = cutLowerCards(greenField);
-  auto enemyCards = cutEnemyCards(greenField);
-  auto middle = cutMiddlePart(greenField);
-  auto stack = cutStackPart(greenField);
+  auto upperCards = AreaOfInterestCutter::cutUpperCards(greenField);
+  auto lowerCards = AreaOfInterestCutter::cutLowerCards(greenField);
+  auto enemyCards = AreaOfInterestCutter::cutEnemyCards(greenField);
+  auto middle = AreaOfInterestCutter::cutMiddlePart(greenField);
+  auto stack = AreaOfInterestCutter::cutStackPart(greenField);
 
   TableSnapshot tableSnapshot;
 
