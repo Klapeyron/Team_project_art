@@ -24,6 +24,10 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   const std::string rightUpperCornerFileName = "RUcorner.tiff";
   const std::string myTurnFileName = "myTurn.tiff";
   const std::string enemyCardTakenFileName = "enemyCardTaken.tiff";
+  const std::string pasButtonFileName = "pas.tiff";
+  const std::string okButtonFileName = "ok.tiff";
+  const std::string stukamButtonFileName = "stukam.tiff";
+  const std::string startButtonFileName = "start.tiff";
 
   const std::string tableImageFilePath;
   const std::string templatesDirectory = "../templates/";
@@ -35,6 +39,7 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
   std::array<Image, 4> stackColorTemplates;
 
   Image leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
+  Image pasButton, okButton, stukamButton, startButton;
   Position leftUpperPosition;
 
   Image cutGreenField(Image const& tableImage);

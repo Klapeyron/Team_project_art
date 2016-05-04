@@ -5,6 +5,10 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
                                                                     rightUpperCorner(cv::imread(templatesDirectory + rightUpperCornerFileName)),
                                                                     myTurn(cv::imread(templatesDirectory + myTurnFileName)),
                                                                     enemyCardTaken(cv::imread(templatesDirectory + enemyCardTakenFileName)),
+                                                                    pasButton(cv::imread(templatesDirectory + pasButtonFileName)),
+                                                                    okButton(cv::imread(templatesDirectory + okButtonFileName)),
+                                                                    stukamButton(cv::imread(templatesDirectory + stukamButtonFileName)),
+                                                                    startButton(cv::imread(templatesDirectory + startButtonFileName)),
                                                                     previousTableSnapshot(),
                                                                     leftUpperPosition()
 {
@@ -159,6 +163,15 @@ void DetectionSystem::processTable()
 
   std::tie(tableSnapshot.myMove, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
   std::tie(tableSnapshot.opponentTookCardFromHiddenStack, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, enemyCardTaken);
+
+  std::tie(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
+    ImageAnalyzer::containsImageTemplate(middle, okButton);
+  std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second) =
+    ImageAnalyzer::containsImageTemplate(middle, pasButton);
+  std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
+    ImageAnalyzer::containsImageTemplate(middle, stukamButton);
+  std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
+    ImageAnalyzer::containsImageTemplate(middle, startButton);
 
   if(previousTableSnapshot == tableSnapshot)
     return;
