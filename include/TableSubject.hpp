@@ -15,8 +15,6 @@ class TableSubject {
   mutable std::mutex mutex;
   std::condition_variable cv;
 
-  mutable std::mutex canIWorkMutex;
-  std::condition_variable canIWorkNofify;
   bool canIWork;
 
   std::thread thread;
@@ -26,7 +24,6 @@ class TableSubject {
   TableSubject();
   ~TableSubject();
 
-  void waitForUnfinishedJobs();
   void registerOberver(TableObserver &);
   void notify(TableSnapshot const&);
 };

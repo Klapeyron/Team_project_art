@@ -2,8 +2,8 @@
 
 #include "Position.hpp"
 
-enum class Card_Color : unsigned int {None = 0, SPADE, HEART, CLUB, DIAMOND}; 
-enum class Card_Figure : unsigned int {None = 0, A, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING};
+enum class Card_Color : unsigned {None = 0, SPADE, HEART, CLUB, DIAMOND}; 
+enum class Card_Figure : unsigned {None = 0, A, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING};
 
 const inline Card_Color operator++(Card_Color & x) { return x = static_cast<Card_Color>(static_cast<unsigned int>(x) + 1); }
 const inline Card_Color operator++(const Card_Color & x) { return static_cast<Card_Color>(static_cast<unsigned int>(x) + 1); }

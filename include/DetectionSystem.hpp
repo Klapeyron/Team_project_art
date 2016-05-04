@@ -23,5 +23,4 @@ class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyz
  public:
   DetectionSystem(std::string const& imageFilePath);
   void processTable();
-  using TableSubject::waitForUnfinishedJobs;
 };

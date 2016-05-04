@@ -25,6 +25,4 @@ int main()
 
   detectionSystem.makePrintScreen();
   detectionSystem.processTable();
-
-  detectionSystem.waitForUnfinishedJobs();
 }
