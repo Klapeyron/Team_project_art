@@ -24,13 +24,6 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13>
   return foundCards;
 }
 
-Image DetectionSystem::cutGreenField(Image const& tableImage)
-{
-  bool matched = false;
-  std::tie(matched, leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, ImageTemplates::leftUpperCorner);
-  return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
-}
-
 Card DetectionSystem::findStackCard(Image const& stackArea)
 {
   Card_Color color = Card_Color::None;
@@ -71,13 +64,12 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
 void DetectionSystem::processTable()
 {
   Image tableImage = cv::imread(tableImageFilePath);
-  auto greenField = Image(714, 597, CV_32F, cv::Scalar::all(0));
 
-  if(leftUpperPosition.getX() == 0u and leftUpperPosition.getY() == 0u)
-    greenField = cutGreenField(tableImage);
-  else
-    greenField = tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
+  auto isGreenFieldLeftUpperPositionDetected = leftUpperPosition.getX() != 0u and leftUpperPosition.getY() != 0u;
+  if( not isGreenFieldLeftUpperPositionDetected)
+    std::tie(std::ignore,leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, ImageTemplates::leftUpperCorner);
 
+  auto greenField = AreaOfInterestCutter::cutGreenField(tableImage, leftUpperPosition);
   auto upperCards = AreaOfInterestCutter::cutUpperCards(greenField);
   auto lowerCards = AreaOfInterestCutter::cutLowerCards(greenField);
   auto enemyCards = AreaOfInterestCutter::cutEnemyCards(greenField);

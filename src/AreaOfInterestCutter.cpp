@@ -1,5 +1,10 @@
 #include "AreaOfInterestCutter.hpp"
 
+cv::Mat AreaOfInterestCutter::cutGreenField(cv::Mat const& tableImage, Position leftUpperPosition)
+{
+  return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
+}
+
 cv::Mat AreaOfInterestCutter::cutUpperCards(cv::Mat const& greenField)
 {
   return greenField(cv::Rect(112, 326, 424, 85));
