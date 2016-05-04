@@ -7,12 +7,12 @@ void GameControl::onUpdate(TableSnapshot const& snapshot)
 
 void GameControl::pickCardFromHiddenStack()
 {
-  setPosition(ButtonsSnapshot::getButtonPosition(HIDDEN_STACK_BUTTON));
+  // setPosition(ButtonsSnapshot::getButtonPosition(HIDDEN_STACK_BUTTON));
 }
 
 void GameControl:: pickCardFromStack()
 {
-  setPosition(ButtonsSnapshot::getButtonPosition(STACK_BUTTON));
+  // setPosition(ButtonsSnapshot::getButtonPosition(STACK_BUTTON));
 }
 
 void GameControl:: throwMyCard(const Card &card)
@@ -23,7 +23,7 @@ void GameControl:: throwMyCard(const Card &card)
 
 void GameControl:: endGame()
 {
-  setPosition(ButtonsSnapshot::getButtonPosition(END_GAME_BUTTON));
+  setPosition(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second);
 }
 
 void GameControl::touchCard(const Card &card)
@@ -34,7 +34,7 @@ void GameControl::touchCard(const Card &card)
 
 void GameControl::pressOK()
 {
-  setPosition(ButtonsSnapshot::getButtonPosition(OK_BUTTON));
+  // setPosition(ButtonsSnapshot::getButtonPosition(OK_BUTTON));
 }
 
 void GameControl::setPosition(const Position & position)
