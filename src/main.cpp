@@ -1,6 +1,7 @@
 #include "DetectionSystem.hpp"
 #include "ArtificialIntelligence.hpp"
 #include "GameControl.hpp"
+
 int main()
 {
   DetectionSystem detectionSystem(printScreenFileName);

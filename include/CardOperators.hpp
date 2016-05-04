@@ -1,3 +1,4 @@
+#pragma once
 #include "Card.hpp"
 
 inline std::ostream& operator<<(::std::ostream& os, const Card_Color& color) {

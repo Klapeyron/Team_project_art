@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Position.hpp"
-#include <iostream>
 
 enum class Card_Color : unsigned int {None = 0, SPADE, HEART, CLUB, DIAMOND}; 
 enum class Card_Figure : unsigned int {None = 0, A, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, JACK, QUEEN, KING};
