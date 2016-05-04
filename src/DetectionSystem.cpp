@@ -65,7 +65,7 @@ void DetectionSystem::processTable()
 {
   Image tableImage = cv::imread(tableImageFilePath);
 
-  auto isGreenFieldLeftUpperPositionDetected = leftUpperPosition.getX() != 0u and leftUpperPosition.getY() != 0u;
+  auto isGreenFieldLeftUpperPositionDetected = leftUpperPosition != Position();
   if( not isGreenFieldLeftUpperPositionDetected)
     std::tie(std::ignore,leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, ImageTemplates::leftUpperCorner);
 
