@@ -6,7 +6,6 @@
 #include <condition_variable>
 #include <mutex>
 #include <deque>
-#include <atomic>
 #include <memory>
 
 class TableSubject {
@@ -15,7 +14,10 @@ class TableSubject {
 
   mutable std::mutex mutex;
   std::condition_variable cv;
-  std::atomic<bool> canIWork;
+
+  mutable std::mutex canIWorkMutex;
+  std::condition_variable canIWorkNofify;
+  bool canIWork;
 
   std::thread thread;
   void notifyAllObservers(TableSnapshot const& snapshot);

@@ -1,6 +1,6 @@
 #include "TableSubject.hpp"
 
-TableSubject::TableSubject() :canIWork{true}, thread(&TableSubject::processInBackground,this) {}
+TableSubject::TableSubject() :canIWork{true}, thread{&TableSubject::processInBackground, this} {}
 
 TableSubject::~TableSubject()
 {
@@ -9,20 +9,29 @@ TableSubject::~TableSubject()
 
 void TableSubject::waitForUnfinishedJobs()
 {
+  std::unique_lock<std::mutex> locker(canIWorkMutex);
+  canIWork = false;
+  canIWorkNofify.notify_all();
   if(thread.joinable()) thread.join();
 }
 
 void TableSubject::processInBackground()
 {
-  TableSnapshot snapshot;
+  std::unique_lock<std::mutex> canIWorkLocker(canIWorkMutex);
+  canIWorkNofify.wait(canIWorkLocker, [&]() { return canIWork; });
+  while(canIWork)
   {
-    std::unique_lock<std::mutex> locker(mutex);
-    auto tableSnapshotsNotEmpty = [&]() { return not tableSnapshots.empty(); };
-    cv.wait(locker, tableSnapshotsNotEmpty);
-    snapshot = std::move(tableSnapshots.back());
-    tableSnapshots.pop_back();
+    canIWorkLocker.unlock();
+    TableSnapshot snapshot;
+    {
+      std::unique_lock<std::mutex> locker(mutex);
+      auto tableSnapshotsNotEmpty = [&]() { return not tableSnapshots.empty(); };
+      cv.wait(locker, tableSnapshotsNotEmpty);
+      snapshot = std::move(tableSnapshots.back());
+      tableSnapshots.pop_back();
+    }
+    notifyAllObservers(snapshot);
   }
-  notifyAllObservers(snapshot);
 }
 
 void TableSubject::notifyAllObservers(TableSnapshot const& snapshot)
