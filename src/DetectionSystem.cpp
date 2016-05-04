@@ -1,37 +1,14 @@
 #include "DetectionSystem.hpp"
 
 DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFilePath(imageFilePath),
-                                                                    leftUpperCorner(cv::imread(templatesDirectory + leftUpperCornerFileName)),
-                                                                    rightUpperCorner(cv::imread(templatesDirectory + rightUpperCornerFileName)),
-                                                                    myTurn(cv::imread(templatesDirectory + myTurnFileName)),
-                                                                    enemyCardTaken(cv::imread(templatesDirectory + enemyCardTakenFileName)),
-                                                                    pasButton(cv::imread(templatesDirectory + pasButtonFileName)),
-                                                                    okButton(cv::imread(templatesDirectory + okButtonFileName)),
-                                                                    stukamButton(cv::imread(templatesDirectory + stukamButtonFileName)),
-                                                                    startButton(cv::imread(templatesDirectory + startButtonFileName)),
+                                                                    ImageTemplates("../templates/"),
                                                                     previousTableSnapshot(),
-                                                                    leftUpperPosition()
-{
-  for(auto i = 0u; i < redTemplateFileNames.size(); i++)
-    redCardTemplates[i] = cv::imread(templatesDirectory + redTemplateFileNames[i]);
-
-  for(auto i = 0u; i < blackTemplateFileNames.size(); i++)
-    blackCardTemplates[i] = cv::imread(templatesDirectory + blackTemplateFileNames[i]);
-
-  for(auto i = 0u; i < redStackTemplateFileNames.size(); i++)
-    redStackCardTemplates[i] = cv::imread(templatesDirectory + redStackTemplateFileNames[i]);
-
-  for(auto i = 0u; i < blackStackTemplateFileNames.size(); i++)
-    blackStackCardTemplates[i] = cv::imread(templatesDirectory + blackStackTemplateFileNames[i]);
-
-  for(auto i = 0u; i < stackColorFileNames.size(); i++)
-    stackColorTemplates[i] = cv::imread(templatesDirectory + stackColorFileNames[i]);
-}
+                                                                    leftUpperPosition() {}
 
 Image DetectionSystem::cutGreenField(Image const& tableImage)
 {
   bool matched = false;
-  std::tie(matched, leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, leftUpperCorner);
+  std::tie(matched, leftUpperPosition) = ImageAnalyzer::containsImageTemplate(tableImage, ImageTemplates::leftUpperCorner);
   return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
 }
 
@@ -83,32 +60,32 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
   Card_Color color = Card_Color::None;
   Position stackCardPosition;
 
-  for(auto it = stackColorTemplates.begin(); it != stackColorTemplates.end(); ++it)
+  for(auto it = ImageTemplates::stackColorTemplates.begin(); it != ImageTemplates::stackColorTemplates.end(); ++it)
   {
     bool colorMatched = false;
     std::tie(colorMatched, stackCardPosition) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
     if(colorMatched)
-      color = static_cast<Card_Color>(std::distance(stackColorTemplates.begin(),it) + 1);
+      color = static_cast<Card_Color>(std::distance(ImageTemplates::stackColorTemplates.begin(),it) + 1);
   }
 
-  for(auto it = blackStackCardTemplates.begin(); it != blackStackCardTemplates.end(); ++it)
+  for(auto it = ImageTemplates::blackStackCardTemplates.begin(); it != ImageTemplates::blackStackCardTemplates.end(); ++it)
   {
     bool colorMatched = false;
     std::tie(colorMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
     if(colorMatched)
     {
-      auto figure = static_cast<Card_Figure>(std::distance(blackStackCardTemplates.begin(),it) + 1);
+      auto figure = static_cast<Card_Figure>(std::distance(ImageTemplates::blackStackCardTemplates.begin(),it) + 1);
       return Card(figure,color,stackCardPosition);
     }
   }
 
-  for(auto it = redStackCardTemplates.begin(); it != redStackCardTemplates.end(); ++it)
+  for(auto it = ImageTemplates::redStackCardTemplates.begin(); it != ImageTemplates::redStackCardTemplates.end(); ++it)
   {
     bool colorMatched = false;
     std::tie(colorMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(stackArea, *it);
     if(colorMatched)
     {
-      auto figure = static_cast<Card_Figure>(std::distance(redStackCardTemplates.begin(),it) + 1);
+      auto figure = static_cast<Card_Figure>(std::distance(ImageTemplates::redStackCardTemplates.begin(),it) + 1);
       return Card(figure,color,stackCardPosition);
     }
   }
@@ -140,16 +117,16 @@ void DetectionSystem::processTable()
 
   auto upperCardsHandle = std::async(std::launch::async, [&]()
                                      {
-                                       auto heartCards = getCardsFromSelectedArea(redCardTemplates, upperCards, Card_Color::HEART);
-                                       auto clubCards = getCardsFromSelectedArea(blackCardTemplates, upperCards, Card_Color::CLUB);
+                                       auto heartCards = getCardsFromSelectedArea(ImageTemplates::redCardTemplates, upperCards, Card_Color::HEART);
+                                       auto clubCards = getCardsFromSelectedArea(ImageTemplates::blackCardTemplates, upperCards, Card_Color::CLUB);
                                        std::move(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
                                        return heartCards;
                                      });
 
   auto lowerCardsHandle = std::async(std::launch::async, [&]()
                                      {
-                                       auto diamondCards = getCardsFromSelectedArea(redCardTemplates, lowerCards, Card_Color::DIAMOND);
-                                       auto spadeCards = getCardsFromSelectedArea(blackCardTemplates, lowerCards, Card_Color::SPADE);
+                                       auto diamondCards = getCardsFromSelectedArea(ImageTemplates::redCardTemplates, lowerCards, Card_Color::DIAMOND);
+                                       auto spadeCards = getCardsFromSelectedArea(ImageTemplates::blackCardTemplates, lowerCards, Card_Color::SPADE);
                                        std::move(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
                                        return diamondCards;
                                      });
@@ -161,17 +138,17 @@ void DetectionSystem::processTable()
   std::move(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
   std::move(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
 
-  std::tie(tableSnapshot.myMove, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
-  std::tie(tableSnapshot.opponentTookCardFromHiddenStack, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, enemyCardTaken);
+  std::tie(tableSnapshot.myMove, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::myTurn);
+  std::tie(tableSnapshot.opponentTookCardFromHiddenStack, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::enemyCardTaken);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, okButton);
+    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton);
   std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, pasButton);
+    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasButton);
   std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, stukamButton);
+    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton);
   std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, startButton);
+    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::startButton);
 
   if(previousTableSnapshot == tableSnapshot)
     return;
