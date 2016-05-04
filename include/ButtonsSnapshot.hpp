@@ -5,15 +5,9 @@
 
 #include "Position.hpp"
 
-const std::string END_GAME_BUTTON = "endgame";
-const std::string OK_BUTTON = "ok";
-const std::string KNOCK_KNOCK_BUTTON = "knock";
-const std::string STACK_BUTTON = "stack";
-const std::string HIDDEN_STACK_BUTTON = "hidden_stack";
+enum class ButtonsConstants : unsigned {OK_BUTTON, PAS_BUTTON, KNOCK_KNOCK_BUTTON, START_BUTTON};
 
-class ButtonsSnapshot
+struct ButtonsSnapshot
 {
-  std::map<std::string,Position> buttons;
- public:
-  static const Position getButtonPosition(std::string const& buttonName);
+  std::map<ButtonsConstants, std::pair<bool, Position>> buttons;
 };

@@ -10,7 +10,6 @@ add_library ( libRummyGin
 	      ImageAnalyzer.cpp
 	      DetectionSystem.cpp
 	      Position.cpp
-	      ButtonsSnapshot.cpp
 	      GameControl.cpp
 	    )
 

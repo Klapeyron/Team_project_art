@@ -1,15 +1,16 @@
 #pragma once
 
 #include "Card.hpp"
+#include "ButtonsSnapshot.hpp"
 #include <vector>
 
-struct TableSnapshot {
+struct TableSnapshot :public ButtonsSnapshot {
   std::vector<Card> playerCards;
   Card stackCard;
   bool myMove = true;
   bool opponentTookCardFromHiddenStack = false;
-  bool operator ==(const TableSnapshot& card) const;
-  bool operator !=(const TableSnapshot& card) const;
+  bool operator ==(const TableSnapshot&) const;
+  bool operator !=(const TableSnapshot&) const;
 };
 
 inline bool TableSnapshot::operator ==(const TableSnapshot& snapshot) const {
