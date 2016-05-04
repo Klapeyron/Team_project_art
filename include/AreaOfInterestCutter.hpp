@@ -2,15 +2,13 @@
 
 #include <opencv/cv.hpp>
 
-using Image = cv::Mat;
-
 class AreaOfInterestCutter
 {
  public:
-  // Image cutGreenField(Image const& tableImage);
-  Image cutUpperCards(Image const& greenField);
-  Image cutLowerCards(Image const& greenField);
-  Image cutEnemyCards(Image const& greenField);
-  Image cutMiddlePart(Image const& greenField);
-  Image cutStackPart(Image const& greenField);
+  // cv::Mat cutGreenField(cv::Mat const& tablecv::Mat);
+  cv::Mat cutUpperCards(cv::Mat const& greenField);
+  cv::Mat cutLowerCards(cv::Mat const& greenField);
+  cv::Mat cutEnemyCards(cv::Mat const& greenField);
+  cv::Mat cutMiddlePart(cv::Mat const& greenField);
+  cv::Mat cutStackPart(cv::Mat const& greenField);
 };

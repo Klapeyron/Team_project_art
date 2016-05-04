@@ -4,8 +4,6 @@
 #include <string>
 #include <opencv/cv.hpp>
 
-using Image = cv::Mat;
-
 class ImageTemplates {
   const std::array<std::string, 13> blackTemplateFileNames
   {{"Ab.tiff","2b.tiff","3b.tiff","4b.tiff","5b.tiff","6b.tiff","7b.tiff","8b.tiff","9b.tiff","10b.tiff","Jb.tiff","Qb.tiff","Kb.tiff"}};
@@ -30,12 +28,12 @@ class ImageTemplates {
   const std::string templatesDirectory = "../templates/";
  public:
   ImageTemplates(std::string const& templatesDir);
-  std::array<Image, 13> blackCardTemplates;
-  std::array<Image, 13> redCardTemplates;
-  std::array<Image, 13> blackStackCardTemplates;
-  std::array<Image, 13> redStackCardTemplates;
-  std::array<Image, 4> stackColorTemplates;
+  std::array<cv::Mat, 13> blackCardTemplates;
+  std::array<cv::Mat, 13> redCardTemplates;
+  std::array<cv::Mat, 13> blackStackCardTemplates;
+  std::array<cv::Mat, 13> redStackCardTemplates;
+  std::array<cv::Mat, 4> stackColorTemplates;
 
-  const Image leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
-  const Image pasButton, okButton, stukamButton, startButton;
+  const cv::Mat leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
+  const cv::Mat pasButton, okButton, stukamButton, startButton;
 };

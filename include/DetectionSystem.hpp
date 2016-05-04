@@ -9,6 +9,8 @@
 
 #include <future>
 
+using Image = cv::Mat;
+
 class DetectionSystem :public TableSubject, public PrintScreenMaker, ImageAnalyzer, ImageTemplates, AreaOfInterestCutter {
   const std::string tableImageFilePath;
 
