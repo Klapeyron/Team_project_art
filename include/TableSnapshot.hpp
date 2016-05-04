@@ -22,4 +22,3 @@ inline bool TableSnapshot::operator ==(const TableSnapshot& snapshot) const {
 inline bool TableSnapshot::operator !=(const TableSnapshot& snapshot) const {
   return !(*this == snapshot);
 }
-

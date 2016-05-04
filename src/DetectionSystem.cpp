@@ -4,6 +4,7 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
                                                                     leftUpperCorner(cv::imread(templatesDirectory + leftUpperCornerFileName)),
                                                                     rightUpperCorner(cv::imread(templatesDirectory + rightUpperCornerFileName)),
                                                                     myTurn(cv::imread(templatesDirectory + myTurnFileName)),
+                                                                    enemyCardTaken(cv::imread(templatesDirectory + enemyCardTakenFileName)),
                                                                     previousTableSnapshot(),
                                                                     leftUpperPosition()
 {
@@ -156,9 +157,8 @@ void DetectionSystem::processTable()
   std::move(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
   std::move(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
 
-  bool myTurnMatched = false;
-  std::tie(myTurnMatched, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
-  tableSnapshot.myMove = myTurnMatched;
+  std::tie(tableSnapshot.myMove, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, myTurn);
+  std::tie(tableSnapshot.opponentTookCardFromHiddenStack, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, enemyCardTaken);
 
   if(previousTableSnapshot == tableSnapshot)
     return;
