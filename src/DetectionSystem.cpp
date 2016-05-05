@@ -5,7 +5,6 @@ DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFi
                                                                     previousTableSnapshot(),
                                                                     leftUpperPosition() {}
 
-
 std::vector<Card> DetectionSystem::getCardsFromSelectedArea(std::array<Image,13> const& imageTemplates, Image const& areaImage, Card_Color colorOfCardsInArea)
 {
   std::vector<Card> foundCards;

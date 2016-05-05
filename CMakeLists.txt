@@ -9,7 +9,6 @@ project( $(PROJ_NAME) )
 add_definitions( -std=c++14 -O2 )
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON )
 
-
 # Enable Tests for CMake
 include(CTest)
 
