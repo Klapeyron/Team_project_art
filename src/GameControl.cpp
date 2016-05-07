@@ -7,34 +7,40 @@ void GameControl::onUpdate(TableSnapshot const& snapshot)
 
 void GameControl::pickCardFromHiddenStack()
 {
-  // setPosition(ButtonsSnapshot::getButtonPosition(HIDDEN_STACK_BUTTON));
+  std::cout << "pickCardFromHiddenStack" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second);
 }
 
 void GameControl:: pickCardFromStack()
 {
-  // setPosition(ButtonsSnapshot::getButtonPosition(STACK_BUTTON));
+  std::cout << "pickCardFromStack" << std::endl;
+   setPosition(tableSnapshot.buttons[ButtonsConstants::STACK].second);
 }
 
-void GameControl:: throwMyCard(const Card &card)
+void GameControl:: throwMyCard(Card const &card)
 {
+  std::cout << "throwMyCard " << card << std::endl;
   Position pos(card.getX(),card.getY());
   setPosition(pos);
 }
 
 void GameControl:: endGame()
 {
+  std::cout << "endGame" << std::endl;
   setPosition(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second);
 }
 
 void GameControl::touchCard(const Card &card)
 {
+  std::cout << "touchCard " << card << std::endl;
   Position pos(card.getX(),card.getY());
   setPosition(pos);
 }
 
 void GameControl::pressOK()
 {
-  // setPosition(ButtonsSnapshot::getButtonPosition(OK_BUTTON));
+  std::cout << "pressOk" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second);
 }
 
 void GameControl::setPosition(const Position & position)
