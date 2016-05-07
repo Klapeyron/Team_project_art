@@ -676,13 +676,13 @@ class ArtificialIntelligence :public TableObserver
  public:
 	 ArtificialIntelligence(IGameControl & gameControlInterface) : gameControl(gameControlInterface), lastTurn(TypeOfTurn::BEGIN), lastTaken(Card(Card_Figure::None, Card_Color::None)), lastPut(Card(Card_Figure::None, Card_Color::None))
 	{
-		for (const auto& figure : Card_Figure())
-			for (const auto& color : Card_Color())
-				cardDeck.emplace_back(figure, color);
+// 		for (const auto& figure : Card_Figure())
+// 			for (const auto& color : Card_Color())
+// 				cardDeck.emplace_back(figure, color);
 		srand (time (NULL));
-//     for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
-//       for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); ++color)
-// 		  cardDeck.push_back( AICard( static_cast<Card_Figure> (figure), static_cast<Card_Color> (color)));
+    	for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
+			for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); ++color)
+				cardDeck.emplace_back(static_cast<Card_Figure> (figure), static_cast<Card_Color> (color));
 	}
   
 	void onUpdate(TableSnapshot const&);
