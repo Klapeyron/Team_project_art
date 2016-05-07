@@ -13,14 +13,84 @@
 #define MIN_SEQ_LEN (3)
 #define MIN_GROUP_LEN (3)
 #define COLORS_COUNT (4)
-#define ILOSC_TALII (1)
+#define PLAYER_CARDS_COUNT (10)
 
-enum class StackType {SHOWN_STACK, HIDDEN_STACK};
+#define COLOR_RESET "\e[0m"
+#define BLACK "\e[0;30m"
+#define GRAY "\e[1;30m"
+#define RED "\e[0;31m"
+#define DIM_RED "\e[1;31m"
+#define GREEN "\e[0;32m"
+#define DIM_GREEN "\e[1;32m"
+#define YELLOW "\e[0;33m"
+#define DIM_YELLOW "\e[1;33m"
+#define BLUE "\e[0;34m"
+#define DIM_BLUE "\e[1;34m"
+#define PURPLE "\e[0;35m"
+#define DIM_PURPLE "\e[1;35m"
+#define CYAN "\e[0;36m"
+#define DIM_CYAN "\e[1;36m"
+#define WHITE "\e[0;37m"
+#define DIM_WHITE "\e[1;37m"
 
 class AICard: public Card
 {
-	const int id;
+	int id;
 	double usefulnessForOpponent;
+	
+	friend std::ostream& operator<< ( std::ostream& wyjscie, const AICard& card )
+	{
+		wyjscie << "Figure: ";
+		switch(card.getFigure())
+		{
+			case Card_Figure::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
+								break;
+			case Card_Figure::A : wyjscie << "A";
+								break;
+			case Card_Figure::TWO : wyjscie << "TWO";
+								break;
+			case Card_Figure::THREE : wyjscie << "THREE";
+								break;
+			case Card_Figure::FOUR : wyjscie << "FOUR";
+								break;
+			case Card_Figure::FIVE : wyjscie << "FIVE";
+								break;
+			case Card_Figure::SIX : wyjscie << "SIX";
+								break;
+			case Card_Figure::SEVEN : wyjscie << "SEVEN";
+								break;
+			case Card_Figure::EIGHT : wyjscie << "EIGHT";
+								break;
+			case Card_Figure::NINE : wyjscie << "NINE";
+								break;
+			case Card_Figure::TEN : wyjscie << "TEN";
+								break;
+			case Card_Figure::JACK : wyjscie << "JACK";
+								break;
+			case Card_Figure::QUEEN : wyjscie << "QUEEN";
+								break;
+			case Card_Figure::KING : wyjscie << "KING";
+								break;
+			default : wyjscie << "Different";
+		}
+		wyjscie << ", Color: ";
+		switch(card.getColor())
+		{
+			case Card_Color::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
+									break;
+			case Card_Color::SPADE : wyjscie << "SPADE";
+									break;
+			case Card_Color::HEART : wyjscie << "HEART";
+									break;
+			case Card_Color::CLUB : wyjscie << "CLUB";
+									break;
+			case Card_Color::DIAMOND : wyjscie << "DIAMOND";
+									break;
+			default : wyjscie << DIM_RED << "Different" << COLOR_RESET;
+		}
+		wyjscie << ", id: " << card.getId() << ", use: " << card.getUsefulnessForOpponent() << std::endl;
+		return wyjscie;
+	}
 	
 public:
 	AICard(Card_Figure figure = Card_Figure::None, Card_Color color = Card_Color::None, int id = 0, double usefulness = 0.0) : Card(figure, color), id(id), usefulnessForOpponent(usefulness) {}
@@ -34,10 +104,76 @@ public:
 	double getUsefulnessForOpponent() const { return usefulnessForOpponent; }
 };
 
+class AIOppCard: public Card
+{
+	bool isReal;
+	
+	friend std::ostream& operator<< ( std::ostream& wyjscie, const AIOppCard& card )
+	{
+		wyjscie << "Figure: ";
+		switch(card.getFigure())
+		{
+			case Card_Figure::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
+			break;
+			case Card_Figure::A : wyjscie << "A";
+			break;
+			case Card_Figure::TWO : wyjscie << "TWO";
+			break;
+			case Card_Figure::THREE : wyjscie << "THREE";
+			break;
+			case Card_Figure::FOUR : wyjscie << "FOUR";
+			break;
+			case Card_Figure::FIVE : wyjscie << "FIVE";
+			break;
+			case Card_Figure::SIX : wyjscie << "SIX";
+			break;
+			case Card_Figure::SEVEN : wyjscie << "SEVEN";
+			break;
+			case Card_Figure::EIGHT : wyjscie << "EIGHT";
+			break;
+			case Card_Figure::NINE : wyjscie << "NINE";
+			break;
+			case Card_Figure::TEN : wyjscie << "TEN";
+			break;
+			case Card_Figure::JACK : wyjscie << "JACK";
+			break;
+			case Card_Figure::QUEEN : wyjscie << "QUEEN";
+			break;
+			case Card_Figure::KING : wyjscie << "KING";
+			break;
+			default : wyjscie << "Different";
+		}
+		wyjscie << ", Color: ";
+		switch(card.getColor())
+		{
+			case Card_Color::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
+			break;
+			case Card_Color::SPADE : wyjscie << "SPADE";
+			break;
+			case Card_Color::HEART : wyjscie << "HEART";
+			break;
+			case Card_Color::CLUB : wyjscie << "CLUB";
+			break;
+			case Card_Color::DIAMOND : wyjscie << "DIAMOND";
+			break;
+			default : wyjscie << DIM_RED << "Different" << COLOR_RESET;
+		}
+		wyjscie << ", real: " << card.getIsReal() << std::endl;
+		return wyjscie;
+	}
+	
+public:
+	AIOppCard(Card_Figure figure = Card_Figure::None, Card_Color color = Card_Color::None, bool isReal = true) : Card(figure, color), isReal(isReal) {}
+	
+	AIOppCard(const Card& card, const bool& isReal) : Card(card.getFigure(), card.getColor()), isReal(isReal) {}
+	
+	int getIsReal() const { return isReal; }
+};
+
 struct Difference
 {
-	std::list<AICard> added;
-	std::list<AICard> removed;
+	std::list< AICard > added;
+	std::list< AICard > removed;
 };
 
 struct Comparation
@@ -55,19 +191,19 @@ class Sequence
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const Sequence& sequence )
 	{
 		for(const AICard& card : sequence)
-			wyjscie << "figure: " << static_cast<std::underlying_type<Card_Figure>::type>(card.getFigure()) << " color: " << static_cast<std::underlying_type<Card_Color>::type>(card.getColor()) << " id: " << card.getId() << std::endl;
+			wyjscie << card;
 		return wyjscie;
 	}
 	
 public:
 	Sequence() {}
 	
-	Sequence(std::multiset < AICard, Comparation >& cards)
+	Sequence(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
-		CreateSequence(cards);
+		CreateSequence(cards, minSequenceLen);
 	}
 	
-	bool CreateSequence(std::multiset < AICard, Comparation >& cards)
+	bool CreateSequence(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
 		std::multiset < AICard, Comparation > sequence;
 		std::multiset < AICard, Comparation >::iterator nextCheckingIt = cards.begin();
@@ -97,7 +233,7 @@ public:
 						
 			//dodawanie sekwencji
 			if (color == Card_Color::None || it == std::prev(cards.end()))
-				if(sequence.size() >= MIN_SEQ_LEN)//dodawanie sekwencji
+				if(sequence.size() >= minSequenceLen)//dodawanie sekwencji
 				{
 					this->sequence = sequence;//dodaj sekwencję
 					for (const AICard& card : sequence)//usuń sekwencję z kart
@@ -123,7 +259,7 @@ public:
 	bool AddCard(const AICard& card)
 	{
 		bool fits = false;
-		if(fits = CheckFitting(card))
+		if (fits = CheckFitting(card))
 			sequence.insert(card);
 		return fits;
 	}
@@ -147,15 +283,15 @@ public:
 		return false;
 	}
 	
-	bool CheckCorrectness() const
+	bool CheckCorrectness(const int& minSequenceLen = MIN_SEQ_LEN) const
 	{
-		if(sequence.empty()) return false;
+		if (sequence.empty() || sequence.size() < minSequenceLen) return false;
 		Card_Color color = sequence.cbegin()->getColor();
 		Card_Figure figure = sequence.cbegin()->getFigure();
 		for(const AICard& card : sequence)
 		{
-			if(figure > Card_Figure::KING) return false;
-			if(card.getColor() == color && card.getFigure() == figure)
+			if (figure > Card_Figure::KING) return false;
+			if (card.getColor() == color && card.getFigure() == figure)
 				++figure;
 		}
 		return true;
@@ -210,25 +346,25 @@ class SequencesOfCards
 public:
 	SequencesOfCards() {}
 	
-	SequencesOfCards(const std::list< Sequence >& sequences)
+	SequencesOfCards(const std::list< Sequence >& sequences, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
 		for(const Sequence& seq : sequences)
-			if(seq.CheckCorrectness())
+			if(seq.CheckCorrectness(minSequenceLen))
 				this->sequences.push_back(seq);
 	}
 	
-	SequencesOfCards(std::multiset < AICard, Comparation >& cards)
+	SequencesOfCards(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
-		CreateSequences(cards);
+		CreateSequences(cards, minSequenceLen);
 	}
 	
-	std::list< Sequence >::size_type CreateSequences(std::multiset < AICard, Comparation >& cards)
+	std::list< Sequence >::size_type CreateSequences(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
 		sequences.clear();
-		for(int i = 0; i < cards.size() / MIN_SEQ_LEN; ++i)
+		for(int i = 0; i < cards.size() / minSequenceLen; ++i)
 		{
 			Sequence seq;
-			if(seq.CreateSequence(cards))
+			if(seq.CreateSequence(cards, minSequenceLen))
 				this->sequences.push_back(seq);
 			else
 				break;
@@ -301,19 +437,19 @@ class Group
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const Group& group )
 	{
 		for(const AICard& card : group)
-			wyjscie << "figure: " << static_cast<std::underlying_type<Card_Figure>::type>(card.getFigure()) << " color: " << static_cast<std::underlying_type<Card_Color>::type>(card.getColor()) << " id: " << card.getId() << std::endl;
+			wyjscie << card;
 		return wyjscie;
 	}
 	
 public:
 	Group() {}
 	
-	Group(std::multiset < AICard, Comparation >& cards)
+	Group(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
 	{
-		CreateGroup(cards);
+		CreateGroup(cards, minGroupLen);
 	}
 	
-	bool CreateGroup(std::multiset < AICard, Comparation >& cards)
+	bool CreateGroup(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
 	{
 		std::multiset < AICard, GroupComparation > group;
 		std::multiset < AICard, GroupComparation >::iterator nextCheckingIt = group.begin();
@@ -342,7 +478,7 @@ public:
 				figure = Card_Figure::None;
 			//dodawanie grupy
 			if (figure == Card_Figure::None || it == std::prev(cards.end()))
-				if (group.size() >= MIN_GROUP_LEN)//dodawanie grupy
+				if (group.size() >= minGroupLen)//dodawanie grupy
 				{
 					this->group = group;//dodaj grupę
 					for (const AICard& card : group)//usuń grupę z kart
@@ -386,17 +522,12 @@ public:
 		return false;
 	}
 	
-	bool CheckCorrectness() const
+	bool CheckCorrectness(const int& minGroupLen = MIN_GROUP_LEN) const
 	{
-		if(group.empty()) return false;
-		Card_Color color = group.cbegin()->getColor();
+		if (group.empty() || group.size() < minGroupLen) return false;
 		Card_Figure figure = group.cbegin()->getFigure();
-		for(const AICard& card : group)
-		{
-			if(color > Card_Color::DIAMOND) return false;
-			if(card.getColor() == color && card.getFigure() == figure)
-				++color;
-		}
+		for (const AICard& card : group)
+			if (card.getFigure() != figure) return false;
 		return true;
 	}
 	
@@ -441,25 +572,25 @@ class GroupsOfCards
 public:
 	GroupsOfCards() {}
 	
-	GroupsOfCards(const std::list< Group >& groups)
+	GroupsOfCards(const std::list< Group >& groups, const int& minGroupLen = MIN_GROUP_LEN)
 	{
 		for (const Group& group : groups)
-			if (group.CheckCorrectness())
+			if (group.CheckCorrectness(minGroupLen))
 				this->groups.push_back(group);
 	}
 	
-	GroupsOfCards(std::multiset < AICard, Comparation >& cards)
+	GroupsOfCards(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
 	{
-		CreateGroups(cards);
+		CreateGroups(cards, minGroupLen);
 	}
 	
-	std::list< Group >::size_type CreateGroups(std::multiset < AICard, Comparation >& cards)
+	std::list< Group >::size_type CreateGroups(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
 	{
 		groups.clear();
-		for (int i = 0; i < cards.size() / MIN_GROUP_LEN; ++i)
+		for (int i = 0; i < cards.size() / minGroupLen; ++i)
 		{
 			Group group;
-			if(group.CreateGroup(cards))
+			if(group.CreateGroup(cards, minGroupLen))
 				this->groups.push_back(group);
 			else
 				break;
@@ -528,26 +659,27 @@ static struct UsefulnessForOpponentComparation
 class ArtificialIntelligence :public TableObserver
 {
   IGameControl & gameControl;
-  bool lastTurn;
+  enum class TypeOfTurn {BEGIN, MY_TAKE, MY_PUT, OPP_TAKE};
+  TypeOfTurn lastTurn;
 //   StackType lastAction;
   Card lastStackCard, lastTaken, lastPut;
   std::multiset < AICard, Comparation > ungruppedCards;//niepogrupowane karty
-  std::list < AICard > cardDeck;//talia kart
+  std::list < Card > cardDeck;//talia kart
   std::multiset < AICard, Comparation > cards;//karty do przeszukania
   SequencesOfCards sequences;//znalezione sekwencje
   GroupsOfCards groups;//znalezione grupy
-  std::vector < AICard > opponentCards;//karty przeciwnika
+  std::list < AIOppCard > opponentCards;//karty przeciwnika
   
 	bool firstTime = true;
 	int newCardID = 0, turnNumber = 0;
   
  public:
-	ArtificialIntelligence(IGameControl & gameControlInterface) : gameControl(gameControlInterface), lastTurn(true), lastTaken(Card(Card_Figure::None, Card_Color::None)), lastPut(Card(Card_Figure::None, Card_Color::None))
+	 ArtificialIntelligence(IGameControl & gameControlInterface) : gameControl(gameControlInterface), lastTurn(TypeOfTurn::BEGIN), lastTaken(Card(Card_Figure::None, Card_Color::None)), lastPut(Card(Card_Figure::None, Card_Color::None))
 	{
-		for (int i = 0; i < ILOSC_TALII; ++i)
-			for (const auto& figure : Card_Figure())
-				for (const auto& color : Card_Color())
-					cardDeck.push_back(AICard(figure, color));
+		for (const auto& figure : Card_Figure())
+			for (const auto& color : Card_Color())
+				cardDeck.emplace_back(figure, color);
+		srand (time (NULL));
 //     for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
 //       for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); ++color)
 // 		  cardDeck.push_back( AICard( static_cast<Card_Figure> (figure), static_cast<Card_Color> (color)));
@@ -555,7 +687,11 @@ class ArtificialIntelligence :public TableObserver
   
 	void onUpdate(TableSnapshot const&);
 	
-	void EndGame(TableSnapshot const& tableSnapshot);
+	void RandomCardsForOpponent(TableSnapshot const& tableSnapshot);
+	
+	void CopyMyCardFromTableSnapshot(TableSnapshot const& tableSnapshot);
+	
+	void EndGame(TableSnapshot const& tableSnapshot) const;
 	
 	std::multiset < AICard, Comparation > ReturnUnusedCards(const std::multiset < AICard, Comparation >& unusedForSeqs, const std::multiset < AICard, Comparation >& unusedForGroups) const
 	{
@@ -569,33 +705,37 @@ class ArtificialIntelligence :public TableObserver
 	
 	void CheckUsefulnessForOpponent();
 	
-	int ColorCount(const Card_Figure& figure);
+	double CalculateFactorForGroup(const Card_Figure& figure) const;
 	
-	int DistanceFromFigure(const AICard& card);
+	int CalculateFactorForSequence(const AICard& card) const;
 	
-	Difference ComputeDifference(std::vector<Card> playerCards);
+	Difference ComputeDifference(std::vector<Card> playerCards) const;
 	
 	int CreateSeqsGroupsUnusedCards();
 	
-	bool DecisionToTakeTheCard(const AICard& card);
+	std::multiset < AICard, Comparation > CreateSeqsGroupsUnusedCards(std::multiset < AICard, Comparation > sourceCards, const int& minSequenceLen = MIN_SEQ_LEN, const int& minGroupLen = MIN_GROUP_LEN) const;
+	
+	bool DecisionToTakeTheCard(const AICard& card) const;
 	
 	int RemoveCardsFromDeck();
 	
-	bool RemoveCardFromDeck(const AICard& card);
+	bool RemoveCardFromDeck(const Card& card);
 	
 	int CreateCards();
 	
-	void ShowGroups()
+	void ShowGroups() const
 	{
 		std::cout << groups;
 	}
 	
-	void ShowSeqs()
+	void ShowSeqs() const
 	{
 		std::cout << sequences;
 	}
 	
-	int ShowCards();
+	int ShowCards() const;
 	
-	int ShowCardDeck();
+	int ShowCardDeck() const;
+	
+	int GetOpponentKnownCardsNumber() const;
 };
