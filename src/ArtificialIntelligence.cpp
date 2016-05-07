@@ -23,15 +23,19 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			if(lastTurn == TypeOfTurn::OPP_TAKE)
 			{
 				if (find (difference.removed.cbegin(), difference.removed.cend(), lastPut) == difference.removed.cend())
-					std::cerr << "AI: Gracz nie wydał odpowiedniej karty!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI: Gracz nie wydał odpowiedniej karty: " << lastPut << "! nr ruchu: " << turnNumber << std::endl;
 				if (difference.removed.size() != 1)
+				{
 					std::cerr << "AI: Gracz wydał: " << difference.removed.size() << " kart zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
+					for(const AICard& card : difference.removed)
+						std::cerr << card;
+				}
 			}
 		}
 		if(lastTurn == TypeOfTurn::OPP_TAKE)
 		{
 			if (lastStackCard == tableSnapshot.stackCard)
-				std::cerr << "AI: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: f: " << static_cast<int>(lastStackCard.getFigure()) << " c: " << static_cast<int>(lastStackCard.getColor()) << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: " << lastStackCard << "! nr ruchu: " << turnNumber << std::endl;
 			else
 			{
 				std::list < AIOppCard >::const_iterator it = std::find(opponentCards.cbegin(), opponentCards.cend(), AIOppCard(tableSnapshot.stackCard, true));
@@ -46,10 +50,10 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		if (!difference.added.size())
 		{
 			if (lastTurn == TypeOfTurn::MY_TAKE)
-				std::cerr << "AI: Dwa razy pod rząd taki sam ruch gracza: " << static_cast<int>(lastTurn) << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI: Dwa razy pod rząd taki sam ruch gracza: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			else
 				if (lastTurn != TypeOfTurn::BEGIN && lastTurn != TypeOfTurn::OPP_TAKE)
-					std::cerr << "AI: Naruszenie spójności gry: MY_TAKE po " << static_cast<int>(lastTurn) << "! nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI: Naruszenie spójności gry: MY_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			if (tableSnapshot.playerCards.size() != PLAYER_CARDS_COUNT)
 				std::cerr << "AI: Nieprawidłowa ilość kart gracza: " << tableSnapshot.playerCards.size() << " zamiast: 10! nr ruchu: " << turnNumber << std::endl;
 			if (DecisionToTakeTheCard(tableSnapshot.stackCard))
@@ -71,12 +75,12 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		else //jeśli wzięto kartę
 		{
 			if (lastTurn == TypeOfTurn::MY_PUT)
-				std::cerr << "AI: Dwa razy pod rząd taki sam ruch gracza: " << static_cast<int>(lastTurn) << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI: Dwa razy pod rząd taki sam ruch gracza: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			else
 				if (lastTurn != TypeOfTurn::MY_TAKE)
-					std::cerr << "AI: Naruszenie spójności gry: MY_PUT po " << static_cast<int>(lastTurn) << "! nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI: Naruszenie spójności gry: MY_PUT po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			if (lastTaken != Card(Card_Figure::None, Card_Color::None) && find (difference.added.cbegin(), difference.added.cend(), lastTaken) == difference.added.cend())
-				std::cerr << "AI: Nie znaleziono pobranej karty!" << " nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI: Nie znaleziono pobranej karty: " << lastTaken << "! nr ruchu: " << turnNumber << std::endl;
 			if (difference.added.size() != 1)
 			{
 				std::cerr << "AI: Gracz pobrał: " << difference.added.size() << " kart zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
@@ -140,7 +144,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				std::cerr << "AI: Dwa razy pod rząd taki sam ruch przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
 			else
 				if (lastTurn != TypeOfTurn::MY_PUT)
-					std::cerr << "AI: Naruszenie spójności gry: OPP_TAKE po " << static_cast<int>(lastTurn) << "! nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI: Naruszenie spójności gry: OPP_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			lastTurn = TypeOfTurn::OPP_TAKE;
 		}
 		else
@@ -151,7 +155,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			}
 			else
 				if (lastPut != tableSnapshot.stackCard)
-					std::cerr << "AI: Gracz nie wydał odpowiedniej karty lub dwa razy ruch przed pobraniem karty przez przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI: Gracz nie wydał odpowiedniej karty lub dwa razy ruch przeciwnika przed pobraniem karty!" << " nr ruchu: " << turnNumber << std::endl;
 	}
 }
 

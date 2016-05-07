@@ -9,6 +9,7 @@
 
 #include "IGameControl.hpp"
 #include "TableObserver.hpp"
+#include "CardOperators.hpp"
 
 #define MIN_SEQ_LEN (3)
 #define MIN_GROUP_LEN (3)
@@ -40,55 +41,7 @@ class AICard: public Card
 	
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const AICard& card )
 	{
-		wyjscie << "Figure: ";
-		switch(card.getFigure())
-		{
-			case Card_Figure::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
-								break;
-			case Card_Figure::A : wyjscie << "A";
-								break;
-			case Card_Figure::TWO : wyjscie << "TWO";
-								break;
-			case Card_Figure::THREE : wyjscie << "THREE";
-								break;
-			case Card_Figure::FOUR : wyjscie << "FOUR";
-								break;
-			case Card_Figure::FIVE : wyjscie << "FIVE";
-								break;
-			case Card_Figure::SIX : wyjscie << "SIX";
-								break;
-			case Card_Figure::SEVEN : wyjscie << "SEVEN";
-								break;
-			case Card_Figure::EIGHT : wyjscie << "EIGHT";
-								break;
-			case Card_Figure::NINE : wyjscie << "NINE";
-								break;
-			case Card_Figure::TEN : wyjscie << "TEN";
-								break;
-			case Card_Figure::JACK : wyjscie << "JACK";
-								break;
-			case Card_Figure::QUEEN : wyjscie << "QUEEN";
-								break;
-			case Card_Figure::KING : wyjscie << "KING";
-								break;
-			default : wyjscie << "Different";
-		}
-		wyjscie << ", Color: ";
-		switch(card.getColor())
-		{
-			case Card_Color::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
-									break;
-			case Card_Color::SPADE : wyjscie << "SPADE";
-									break;
-			case Card_Color::HEART : wyjscie << "HEART";
-									break;
-			case Card_Color::CLUB : wyjscie << "CLUB";
-									break;
-			case Card_Color::DIAMOND : wyjscie << "DIAMOND";
-									break;
-			default : wyjscie << DIM_RED << "Different" << COLOR_RESET;
-		}
-		wyjscie << ", id: " << card.getId() << ", use: " << card.getUsefulnessForOpponent() << std::endl;
+		wyjscie << "Figure: " << card.getFigure() << ", Color: " << card.getColor() << ", id: " << card.getId() << ", use: " << card.getUsefulnessForOpponent() << std::endl;
 		return wyjscie;
 	}
 	
@@ -110,55 +63,7 @@ class AIOppCard: public Card
 	
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const AIOppCard& card )
 	{
-		wyjscie << "Figure: ";
-		switch(card.getFigure())
-		{
-			case Card_Figure::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
-			break;
-			case Card_Figure::A : wyjscie << "A";
-			break;
-			case Card_Figure::TWO : wyjscie << "TWO";
-			break;
-			case Card_Figure::THREE : wyjscie << "THREE";
-			break;
-			case Card_Figure::FOUR : wyjscie << "FOUR";
-			break;
-			case Card_Figure::FIVE : wyjscie << "FIVE";
-			break;
-			case Card_Figure::SIX : wyjscie << "SIX";
-			break;
-			case Card_Figure::SEVEN : wyjscie << "SEVEN";
-			break;
-			case Card_Figure::EIGHT : wyjscie << "EIGHT";
-			break;
-			case Card_Figure::NINE : wyjscie << "NINE";
-			break;
-			case Card_Figure::TEN : wyjscie << "TEN";
-			break;
-			case Card_Figure::JACK : wyjscie << "JACK";
-			break;
-			case Card_Figure::QUEEN : wyjscie << "QUEEN";
-			break;
-			case Card_Figure::KING : wyjscie << "KING";
-			break;
-			default : wyjscie << "Different";
-		}
-		wyjscie << ", Color: ";
-		switch(card.getColor())
-		{
-			case Card_Color::None : wyjscie << DIM_RED << "None" << COLOR_RESET;
-			break;
-			case Card_Color::SPADE : wyjscie << "SPADE";
-			break;
-			case Card_Color::HEART : wyjscie << "HEART";
-			break;
-			case Card_Color::CLUB : wyjscie << "CLUB";
-			break;
-			case Card_Color::DIAMOND : wyjscie << "DIAMOND";
-			break;
-			default : wyjscie << DIM_RED << "Different" << COLOR_RESET;
-		}
-		wyjscie << ", real: " << card.getIsReal() << std::endl;
+		wyjscie << "Figure: " << card.getFigure() << ", Color: " << card.getColor() << ", Is real: " << card.getIsReal() << std::endl;
 		return wyjscie;
 	}
 	
@@ -659,7 +564,15 @@ static struct UsefulnessForOpponentComparation
 class ArtificialIntelligence :public TableObserver
 {
   IGameControl & gameControl;
-  enum class TypeOfTurn {BEGIN, MY_TAKE, MY_PUT, OPP_TAKE};
+  enum class TypeOfTurn { BEGIN, MY_TAKE, MY_PUT, OPP_TAKE };
+  friend inline std::ostream& operator<<(::std::ostream& os, const TypeOfTurn& turnType)
+  {
+	  if(turnType == TypeOfTurn::BEGIN) return os << "BEGIN";
+	  if(turnType == TypeOfTurn::MY_TAKE) return os << "MY_TAKE";
+	  if(turnType == TypeOfTurn::MY_PUT) return os << "MY_PUT";
+	  if(turnType == TypeOfTurn::OPP_TAKE) return os << "OPP_TAKE";
+	  return os << "None";
+  }
   TypeOfTurn lastTurn;
 //   StackType lastAction;
   Card lastStackCard, lastTaken, lastPut;
