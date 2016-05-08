@@ -26,7 +26,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 					std::cerr << "AI: Gracz nie wydał odpowiedniej karty: " << lastPut << "! nr ruchu: " << turnNumber << std::endl;
 				if (difference.removed.size() != 1)
 				{
-					std::cerr << "AI: Gracz wydał: " << difference.removed.size() << " kart zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI: Gracz wydał: " << difference.removed.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
 					for(const AICard& card : difference.removed)
 						std::cerr << card;
 				}
@@ -38,11 +38,17 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				std::cerr << "AI: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: " << lastStackCard << "! nr ruchu: " << turnNumber << std::endl;
 			else
 			{
-				std::list < AIOppCard >::const_iterator it = std::find(opponentCards.cbegin(), opponentCards.cend(), AIOppCard(tableSnapshot.stackCard, true));
-				if (it != opponentCards.cend())
-					opponentCards.erase(it);
+				std::list < AIOppCard >::const_iterator cit = std::find(opponentCards.cbegin(), opponentCards.cend(), AIOppCard(tableSnapshot.stackCard, true));
+				if (cit != opponentCards.cend())
+					opponentCards.erase(cit);
 				else
-					opponentCards.erase(std::find_if(opponentCards.begin(), opponentCards.end(), [](const AIOppCard& card){ return !card.getIsReal(); }));
+				{
+					std::list < AIOppCard >::const_iterator cit = std::find_if(opponentCards.begin(), opponentCards.end(), [](const AIOppCard& card){ return !card.getIsReal(); });
+					if (cit != opponentCards.cend())
+						opponentCards.erase(cit);
+					else
+						std::cerr << "AI: Nie usunięto karty przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
+				}
 			}
 		}
 		
@@ -83,7 +89,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				std::cerr << "AI: Nie znaleziono pobranej karty: " << lastTaken << "! nr ruchu: " << turnNumber << std::endl;
 			if (difference.added.size() != 1)
 			{
-				std::cerr << "AI: Gracz pobrał: " << difference.added.size() << " kart zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI: Gracz pobrał: " << difference.added.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
 				for(const AICard& card : difference.added)
 					std::cerr << card;
 			}
@@ -134,6 +140,8 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		{
 			if (lastStackCard != tableSnapshot.stackCard)
 			{
+				if(lastStackCard == Card(Card_Figure::None, Card_Color::None))
+					std::cerr << "AI: Dodano pustą kartę do kart przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
 				opponentCards.emplace_back(lastStackCard, true);
 				lastStackCard = tableSnapshot.stackCard;
 			}
@@ -234,6 +242,7 @@ int ArtificialIntelligence::CalculateFactorForSequence(const AICard& card) const
 {
 	int minDistance = 13;
 	bool isTargetCardReal = false;
+	Card minCard;
 	int minDistance2 = 13;
 	bool isTargetCard2Real = false;
 	double weight = 0.0;
@@ -253,6 +262,7 @@ int ArtificialIntelligence::CalculateFactorForSequence(const AICard& card) const
 				
 				minDistance = distance;
 				isTargetCardReal = oppCard.getIsReal();
+				minCard = oppCard;
 			}
 			else
 				if (distance < minDistance2)
@@ -270,9 +280,9 @@ int ArtificialIntelligence::CalculateFactorForSequence(const AICard& card) const
 						isTargetCard3Real = oppCard.getIsReal();
 					}
 		}
-	if (minDistance <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Dystans: " << minDistance << std::endl;
-	if (minDistance2 <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Dystans2: " << minDistance2 << std::endl;
-	if (minDistance3 <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Dystans3: " << minDistance3 << std::endl;
+	if (minDistance <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Karta: " << card << " - " << minCard << ". Dystans: " << minDistance << std::endl;
+	if (minDistance2 <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Karta: " << card << ". Dystans2: " << minDistance2 << std::endl;
+	if (minDistance3 <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Karta: " << card << ". Dystans3: " << minDistance3 << std::endl;
 	if(minDistance > 0)
 		weight += (13.0 - minDistance) / 6.0 * ((double)isTargetCardReal + 1.0);
 	if (minDistance2 > 0)

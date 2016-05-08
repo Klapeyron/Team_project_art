@@ -41,7 +41,7 @@ class AICard: public Card
 	
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const AICard& card )
 	{
-		wyjscie << "Figure: " << card.getFigure() << ", Color: " << card.getColor() << ", id: " << card.getId() << ", use: " << card.getUsefulnessForOpponent() << std::endl;
+		wyjscie << "Figure: " << card.getFigure() << ", Color: " << card.getColor() << ", id: " << card.getId() << ", Usefulness: " << card.getUsefulnessForOpponent() << std::endl;
 		return wyjscie;
 	}
 	
