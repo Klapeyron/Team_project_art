@@ -14,25 +14,25 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		else
 		{
 			difference = ComputeDifference(tableSnapshot.playerCards);
-			for (const Card& karta : difference.added)
+			for (const AICard& karta : difference.added)
 				cards.insert(karta);
-			for (const Card& karta : difference.removed)
+			for (const AICard& karta : difference.removed)
 				cards.erase(karta);
 			if (difference.added.size() && difference.removed.size())
 				std::cerr << "AI: Jednocześnie wzięto: " << difference.added.size() << " i wydano: " << difference.removed.size() << " kart-ę/y!" << " nr ruchu: " << turnNumber << std::endl;
-			if(lastTurn == TypeOfTurn::OPP_TAKE)
+			if(lastTurn != TypeOfTurn::OPP_FOLD && lastTurn == TypeOfTurn::OPP_TAKE)
 			{
 				if (find (difference.removed.cbegin(), difference.removed.cend(), lastPut) == difference.removed.cend())
 					std::cerr << "AI: Gracz nie wydał odpowiedniej karty: " << lastPut << "! nr ruchu: " << turnNumber << std::endl;
 				if (difference.removed.size() != 1)
 				{
 					std::cerr << "AI: Gracz wydał: " << difference.removed.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
-					for(const AICard& card : difference.removed)
-						std::cerr << card;
+					for(const Card& card : difference.removed)
+						std::cerr << DIM_GREEN << card << COLOR_RESET;
 				}
 			}
 		}
-		if(lastTurn == TypeOfTurn::OPP_TAKE)
+		if(lastTurn != TypeOfTurn::OPP_FOLD && lastTurn == TypeOfTurn::OPP_TAKE)
 		{
 			if (lastStackCard == tableSnapshot.stackCard)
 				std::cerr << "AI: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: " << lastStackCard << "! nr ruchu: " << turnNumber << std::endl;
@@ -58,10 +58,14 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			if (lastTurn == TypeOfTurn::MY_TAKE)
 				std::cerr << "AI: Dwa razy pod rząd taki sam ruch gracza: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			else
-				if (lastTurn != TypeOfTurn::BEGIN && lastTurn != TypeOfTurn::OPP_TAKE)
+				if (lastTurn != TypeOfTurn::OPP_FOLD && lastTurn != TypeOfTurn::BEGIN && lastTurn != TypeOfTurn::OPP_TAKE)
 					std::cerr << "AI: Naruszenie spójności gry: MY_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			if (tableSnapshot.playerCards.size() != PLAYER_CARDS_COUNT)
+			{
 				std::cerr << "AI: Nieprawidłowa ilość kart gracza: " << tableSnapshot.playerCards.size() << " zamiast: 10! nr ruchu: " << turnNumber << std::endl;
+				for(const Card& card : tableSnapshot.playerCards)
+					std::cerr << card;
+			}
 			if (DecisionToTakeTheCard(tableSnapshot.stackCard))
 			{
 				gameControl.pickCardFromStack();
@@ -90,13 +94,17 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			if (difference.added.size() != 1)
 			{
 				std::cerr << "AI: Gracz pobrał: " << difference.added.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
-				for(const AICard& card : difference.added)
-					std::cerr << card;
+				for(const Card& card : difference.added)
+					std::cerr << DIM_BLUE << card << COLOR_RESET;
 			}
 			else
-				std::cerr << "AI: Gracz pobrał: " << *difference.added.begin() << ". nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI: Gracz pobrał: " << DIM_BLUE << (Card)*difference.added.begin() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
 			if (tableSnapshot.playerCards.size() != PLAYER_CARDS_COUNT + 1)
+			{
 				std::cerr << "AI: Nieprawidłowa ilość kart gracza: " << tableSnapshot.playerCards.size() << " zamiast: 11! nr ruchu: " << turnNumber << std::endl;
+				for(const Card& card : tableSnapshot.playerCards)
+					std::cerr << card;
+			}
 			if (ungruppedCards.size())
 			{
 				CheckUsefulnessForOpponent();
@@ -153,7 +161,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			if (lastTurn == TypeOfTurn::OPP_TAKE)
 				std::cerr << "AI: Dwa razy pod rząd taki sam ruch przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
 			else
-				if (lastTurn != TypeOfTurn::MY_PUT)
+				if (lastTurn != TypeOfTurn::OPP_FOLD && lastTurn != TypeOfTurn::MY_PUT)
 					std::cerr << "AI: Naruszenie spójności gry: OPP_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			lastTurn = TypeOfTurn::OPP_TAKE;
 		}
@@ -161,11 +169,13 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			if (lastTurn == TypeOfTurn::BEGIN)
 			{
 				lastStackCard = tableSnapshot.stackCard;
-				lastTurn = TypeOfTurn::OPP_TAKE;
+				lastTurn = TypeOfTurn::OPP_FOLD;
 			}
 			else
 				if (lastPut != tableSnapshot.stackCard)
 					std::cerr << "AI: Gracz nie wydał odpowiedniej karty lub dwa razy ruch przeciwnika przed pobraniem karty!" << " nr ruchu: " << turnNumber << std::endl;
+				else
+					std::cerr << "AI: Gracz wydał: " << DIM_GREEN << lastPut << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
 	}
 }
 

@@ -41,7 +41,7 @@ class AICard: public Card
 	
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const AICard& card )
 	{
-		wyjscie << "Figure: " << card.getFigure() << ", Color: " << card.getColor() << ", id: " << card.getId() << ", Usefulness: " << card.getUsefulnessForOpponent() << std::endl;
+		wyjscie << card.getFigure() << " " << card.getColor() << ", Id: " << card.getId() << ", Usefulness: " << card.getUsefulnessForOpponent() << std::endl;
 		return wyjscie;
 	}
 	
@@ -63,7 +63,7 @@ class AIOppCard: public Card
 	
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const AIOppCard& card )
 	{
-		wyjscie << "Figure: " << card.getFigure() << ", Color: " << card.getColor() << ", Is real: " << card.getIsReal() << std::endl;
+		wyjscie << card.getFigure() << " " << card.getColor() << ", Is real: " << card.getIsReal() << std::endl;
 		return wyjscie;
 	}
 	
@@ -564,13 +564,15 @@ static struct UsefulnessForOpponentComparation
 class ArtificialIntelligence :public TableObserver
 {
   IGameControl & gameControl;
-  enum class TypeOfTurn { BEGIN, MY_TAKE, MY_PUT, OPP_TAKE };
+  enum class TypeOfTurn { BEGIN, MY_TAKE, MY_PUT, OPP_TAKE, OPP_FOLD, END_GAME };
   friend inline std::ostream& operator<<(::std::ostream& os, const TypeOfTurn& turnType)
   {
-	  if(turnType == TypeOfTurn::BEGIN) return os << "BEGIN";
-	  if(turnType == TypeOfTurn::MY_TAKE) return os << "MY_TAKE";
-	  if(turnType == TypeOfTurn::MY_PUT) return os << "MY_PUT";
-	  if(turnType == TypeOfTurn::OPP_TAKE) return os << "OPP_TAKE";
+	  if (turnType == TypeOfTurn::BEGIN) return os << "BEGIN";
+	  if (turnType == TypeOfTurn::MY_TAKE) return os << "MY_TAKE";
+	  if (turnType == TypeOfTurn::MY_PUT) return os << "MY_PUT";
+	  if (turnType == TypeOfTurn::OPP_TAKE) return os << "OPP_TAKE";
+	  if (turnType == TypeOfTurn::OPP_FOLD) return os << "OPP_FOLD";
+	  if (turnType == TypeOfTurn::END_GAME) return os << "END_GAME";
 	  return os << "None";
   }
   TypeOfTurn lastTurn;
