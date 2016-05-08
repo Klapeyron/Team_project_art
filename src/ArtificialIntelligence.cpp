@@ -93,6 +93,8 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				for(const AICard& card : difference.added)
 					std::cerr << card;
 			}
+			else
+				std::cerr << "AI: Gracz pobrał: " << *difference.added.begin() << ". nr ruchu: " << turnNumber << std::endl;
 			if (tableSnapshot.playerCards.size() != PLAYER_CARDS_COUNT + 1)
 				std::cerr << "AI: Nieprawidłowa ilość kart gracza: " << tableSnapshot.playerCards.size() << " zamiast: 11! nr ruchu: " << turnNumber << std::endl;
 			if (ungruppedCards.size())
