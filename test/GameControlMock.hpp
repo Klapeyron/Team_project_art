@@ -11,4 +11,6 @@ class GameControlMock :public IGameControl {
   MOCK_METHOD0(endGame,void());
   MOCK_METHOD1(touchCard,void(Card const&));
   MOCK_METHOD0(pressOK,void());
+  MOCK_METHOD0(pressPass,void());
+  MOCK_METHOD0(pressKnock,void());
 };

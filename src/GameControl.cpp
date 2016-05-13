@@ -1,5 +1,14 @@
  #include "GameControl.hpp"
-
+void GameControl::pressPass()
+{
+  std::cout << "pressPass" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second);
+}
+void GameControl::pressKnock()
+{
+  std::cout << "pressKnock" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second);
+}
 void GameControl::onUpdate(TableSnapshot const& snapshot)
 {
   tableSnapshot = snapshot;
@@ -14,7 +23,8 @@ void GameControl::pickCardFromHiddenStack()
 void GameControl:: pickCardFromStack()
 {
   std::cout << "pickCardFromStack" << std::endl;
-   setPosition(tableSnapshot.buttons[ButtonsConstants::STACK].second);
+  Position pos(tableSnapshot.stackCard.getX(),tableSnapshot.stackCard.getY());
+  setPosition(pos);
 }
 
 void GameControl:: throwMyCard(Card const &card)

@@ -12,7 +12,7 @@
 #include <X11/Xutil.h>
 #include "CardOperators.hpp"
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 class GameControl :public IGameControl, public TableObserver
 {
@@ -28,4 +28,6 @@ public:
   void endGame();
   void touchCard(const Card &);
   void pressOK();  
+  void pressPass();
+  void pressKnock();
 };
