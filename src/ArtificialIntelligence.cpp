@@ -69,7 +69,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				lastTaken = AICard(Card_Figure::None, Card_Color::None);
 				if (myFirstMove)
 				{
-					std::cerr << "Pas" << std::endl;
+					gameControl.pressPass();
 					lastTurn = TypeOfTurn::MY_FOLD;
 				}
 				else
