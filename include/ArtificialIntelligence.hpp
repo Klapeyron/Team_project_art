@@ -6,6 +6,8 @@
 #include <set>
 #include <algorithm>
 #include <type_traits>
+#include <iterator>
+#include <sstream>
 
 #include "IGameControl.hpp"
 #include "TableObserver.hpp"
@@ -15,6 +17,7 @@
 #define MIN_GROUP_LEN (3)
 #define COLORS_COUNT (4)
 #define PLAYER_CARDS_COUNT (10)
+#define END_GAME_POINTS (10)
 
 #define COLOR_RESET "\e[0m"
 #define BLACK "\e[0;30m"
@@ -81,6 +84,12 @@ struct Difference
 	std::list< AICard > removed;
 };
 
+inline std::ostream& operator<< ( std::ostream& wyjscie, const std::list< AICard >& list )
+{
+	std::copy(list.begin(), list.end(), std::ostream_iterator< Card >(wyjscie));
+	return wyjscie;
+}
+
 struct Comparation
 {
   bool operator()(const AICard& a, const AICard& b)
@@ -107,6 +116,9 @@ public:
 	{
 		CreateSequence(cards, minSequenceLen);
 	}
+	
+	typedef std::multiset < AICard, Comparation >::iterator iterator;
+	typedef std::multiset < AICard, Comparation >::const_iterator const_iterator;
 	
 	bool CreateSequence(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
@@ -188,6 +200,13 @@ public:
 		return false;
 	}
 	
+	bool FindCard(const int& cardId) const
+	{
+		if (!sequence.empty() && std::find_if( sequence.begin(), sequence.end(), [& cardId](const AICard& card){ return card.getId() == cardId; } ) != sequence.cend())
+			return true;
+		return false;
+	}
+	
 	bool CheckCorrectness(const int& minSequenceLen = MIN_SEQ_LEN) const
 	{
 		if (sequence.empty() || sequence.size() < minSequenceLen) return false;
@@ -200,6 +219,11 @@ public:
 				++figure;
 		}
 		return true;
+	}
+	
+	std::multiset < AICard, Comparation > ReturnCopy() const
+	{
+		return sequence;
 	}
 	
 	std::multiset < AICard, Comparation >::iterator begin()
@@ -266,39 +290,55 @@ public:
 	std::list< Sequence >::size_type CreateSequences(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
 	{
 		sequences.clear();
-		for(int i = 0; i < cards.size() / minSequenceLen; ++i)
+		for (int i = 0, maxCount = cards.size() / minSequenceLen; i < maxCount; ++i)
 		{
-			Sequence seq;
-			if(seq.CreateSequence(cards, minSequenceLen))
-				this->sequences.push_back(seq);
-			else
+			if (!AddSequence(cards, minSequenceLen))
 				break;
 		}
 		return this->sequences.size();
 	}
 	
+	typedef std::list< Sequence >::iterator iterator;
+	typedef std::list< Sequence >::const_iterator const_iterator;
+	
 	bool CheckFitting(const AICard& card) const
 	{
-		for(const Sequence& seq : sequences)
-			if(seq.CheckFitting(card))
+		for (const Sequence& seq : sequences)
+			if (seq.CheckFitting(card))
 				return true;
+		return false;
+	}
+	
+	bool AddSequence(std::multiset < AICard, Comparation >& cards, const int& minSequenceLen = MIN_SEQ_LEN)
+	{
+		Sequence seq;
+		if (seq.CreateSequence(cards, minSequenceLen))
+		{
+			this->sequences.push_back(seq);
+			return true;
+		}
 		return false;
 	}
 	
 	bool AddCard(const AICard& card)
 	{
-		for(Sequence& seq : sequences)
-			if(seq.AddCard(card))
+		for (Sequence& seq : sequences)
+			if (seq.AddCard(card))
 				return true;
 		return false;
 	}
 	
 	bool FindCard(const AICard& card) const
 	{
-		for(const Sequence& seq : sequences)
-			if(seq.FindCard(card))
+		for (const Sequence& seq : sequences)
+			if (seq.FindCard(card))
 				return true;
 		return false;
+	}
+	
+	iterator erase(const_iterator position)
+	{
+		return sequences.erase(position);
 	}
 	
 	std::list< Sequence >::iterator begin()
@@ -324,6 +364,11 @@ public:
 	std::list< Sequence >::size_type size() const noexcept
 	{
 		return sequences.size();
+	}
+	
+	void clear() noexcept
+	{
+		sequences.clear();
 	}
 };
 
@@ -353,6 +398,9 @@ public:
 	{
 		CreateGroup(cards, minGroupLen);
 	}
+	
+	typedef std::multiset < AICard, GroupComparation >::iterator iterator;
+	typedef std::multiset < AICard, GroupComparation >::const_iterator const_iterator;
 	
 	bool CreateGroup(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
 	{
@@ -427,6 +475,13 @@ public:
 		return false;
 	}
 	
+	bool FindCard(const int& cardId) const
+	{
+		if (!group.empty() && std::find_if( group.begin(), group.end(), [& cardId](const AICard& card){ return card.getId() == cardId; } ) != group.cend())
+			return true;
+		return false;
+	}
+	
 	bool CheckCorrectness(const int& minGroupLen = MIN_GROUP_LEN) const
 	{
 		if (group.empty() || group.size() < minGroupLen) return false;
@@ -434,6 +489,11 @@ public:
 		for (const AICard& card : group)
 			if (card.getFigure() != figure) return false;
 		return true;
+	}
+	
+	std::multiset < AICard, GroupComparation > ReturnCopy() const
+	{
+		return group;
 	}
 	
 	std::multiset < AICard, GroupComparation >::iterator begin()
@@ -492,29 +552,40 @@ public:
 	std::list< Group >::size_type CreateGroups(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
 	{
 		groups.clear();
-		for (int i = 0; i < cards.size() / minGroupLen; ++i)
+		for (int i = 0, maxCount = cards.size() / minGroupLen; i < maxCount; ++i)
 		{
-			Group group;
-			if(group.CreateGroup(cards, minGroupLen))
-				this->groups.push_back(group);
-			else
+			if (!AddGroup(cards, minGroupLen))
 				break;
 		}
 		return this->groups.size();
 	}
 	
+	typedef std::list< Group >::iterator iterator;
+	typedef std::list< Group >::const_iterator const_iterator;
+	
 	bool CheckFitting(const AICard& card) const
 	{
 		for (const Group& group : groups)
-			if(group.CheckFitting(card))
+			if (group.CheckFitting(card))
 				return true;
+		return false;
+	}
+	
+	bool AddGroup(std::multiset < AICard, Comparation >& cards, const int& minGroupLen = MIN_GROUP_LEN)
+	{
+		Group group;
+		if (group.CreateGroup(cards, minGroupLen))
+		{
+			this->groups.push_back(group);
+			return true;
+		}
 		return false;
 	}
 	
 	bool AddCard(const AICard& card)
 	{
 		for (Group& group : groups)
-			if(group.AddCard(card))
+			if (group.AddCard(card))
 				return true;
 		return false;
 	}
@@ -522,9 +593,22 @@ public:
 	bool FindCard(const AICard& card) const
 	{
 		for (const Group& group : groups)
-			if(group.FindCard(card))
+			if (group.FindCard(card))
 				return true;
 		return false;
+	}
+	
+	iterator erase(const_iterator position)
+	{
+		return groups.erase(position);
+	}
+	
+	std::list< Group >::iterator FindCard(const int& cardId)
+	{
+		for (std::list < Group >::iterator it = groups.begin(); it != groups.end(); ++it)
+			if (it->FindCard(cardId))
+				return it;
+		return groups.end();
 	}
 	
 	std::list< Group >::iterator begin()
@@ -551,6 +635,11 @@ public:
 	{
 		return groups.size();
 	}
+	
+	void clear() noexcept
+	{
+		groups.clear();
+	}
 };
 
 static struct UsefulnessForOpponentComparation
@@ -563,50 +652,58 @@ static struct UsefulnessForOpponentComparation
 
 class ArtificialIntelligence :public TableObserver
 {
-  IGameControl & gameControl;
-  enum class TypeOfTurn { BEGIN, MY_TAKE, MY_PUT, OPP_TAKE, OPP_FOLD, END_GAME };
-  friend inline std::ostream& operator<<(::std::ostream& os, const TypeOfTurn& turnType)
-  {
-	  if (turnType == TypeOfTurn::BEGIN) return os << "BEGIN";
-	  if (turnType == TypeOfTurn::MY_TAKE) return os << "MY_TAKE";
-	  if (turnType == TypeOfTurn::MY_PUT) return os << "MY_PUT";
-	  if (turnType == TypeOfTurn::OPP_TAKE) return os << "OPP_TAKE";
-	  if (turnType == TypeOfTurn::OPP_FOLD) return os << "OPP_FOLD";
-	  if (turnType == TypeOfTurn::END_GAME) return os << "END_GAME";
-	  return os << "None";
-  }
-  TypeOfTurn lastTurn;
-//   StackType lastAction;
-  Card lastStackCard, lastTaken, lastPut;
-  std::multiset < AICard, Comparation > ungruppedCards;//niepogrupowane karty
-  std::list < Card > cardDeck;//talia kart
-  std::multiset < AICard, Comparation > cards;//karty do przeszukania
-  SequencesOfCards sequences;//znalezione sekwencje
-  GroupsOfCards groups;//znalezione grupy
-  std::list < AIOppCard > opponentCards;//karty przeciwnika
-  
-	bool firstTime = true;
-	int newCardID = 0, turnNumber = 0;
-  
- public:
-	 ArtificialIntelligence(IGameControl & gameControlInterface) : gameControl(gameControlInterface), lastTurn(TypeOfTurn::BEGIN), lastTaken(Card(Card_Figure::None, Card_Color::None)), lastPut(Card(Card_Figure::None, Card_Color::None))
+	IGameControl & gameControl;
+	enum class TypeOfTurn : int { BEGIN = 0, MY_TAKE, MY_PUT, MY_FOLD, OPP_BEFORE_TAKE, OPP_TAKE, OPP_FOLD, END_GAME };
+	friend inline std::ostream& operator<<(::std::ostream& os, const TypeOfTurn& turnType)
 	{
-// 		for (const auto& figure : Card_Figure())
-// 			for (const auto& color : Card_Color())
-// 				cardDeck.emplace_back(figure, color);
-		srand (time (NULL));
-    	for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
-			for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); ++color)
-				cardDeck.emplace_back(static_cast<Card_Figure> (figure), static_cast<Card_Color> (color));
+		if (turnType == TypeOfTurn::BEGIN) return os << "BEGIN";
+		if (turnType == TypeOfTurn::MY_TAKE) return os << "MY_TAKE";
+		if (turnType == TypeOfTurn::MY_PUT) return os << "MY_PUT";
+		if (turnType == TypeOfTurn::MY_FOLD) return os << "MY_FOLD";
+		if (turnType == TypeOfTurn::OPP_BEFORE_TAKE) return os << "OPP_BEFORE_TAKE";
+		if (turnType == TypeOfTurn::OPP_TAKE) return os << "OPP_TAKE";
+		if (turnType == TypeOfTurn::OPP_FOLD) return os << "OPP_FOLD";
+		if (turnType == TypeOfTurn::END_GAME) return os << "END_GAME";
+		return os << "None";
 	}
-  
-	void onUpdate(TableSnapshot const&);
+	TypeOfTurn lastTurn, myLastTurn;
+	Card lastStackCard, lastTaken, lastPut;
+	std::multiset < AICard, Comparation > ungruppedCards;//niepogrupowane karty
+	std::list < Card > cardDeck;//talia kart
+	std::multiset < AICard, Comparation > cards;//karty do przeszukania
+	SequencesOfCards sequences;//znalezione sekwencje
+	GroupsOfCards groups;//znalezione grupy
+	std::list < AIOppCard > opponentCards;//karty przeciwnika
+	bool myFirstMove = true;
+	int newCardID = 1, turnNumber = 0;
+
+	void FillTheCardDeck()
+	{
+		cardDeck.clear();
+		for (const auto& figure : Card_Figure())
+			for (const auto& color : Card_Color())
+				cardDeck.emplace_back(figure, color);
+	}
+	
+	void WarningGameCorrectness(TypeOfTurn const& currentTurn);
+	
+	void WarningCardsCount(TableSnapshot const& tableSnapshot, const bool& isTaken);
+	
+	int UngruppedCardsPoints() const;
+	
+	void ReplaceOpponentCard(const auto& addedDifference);
+	
+	AICard ChooseCardToPut(std::multiset < AICard, Comparation > sourceCards, const double& tryToThrowTheGreatestFigureThreshold, const double& ifTheUsefulnessIsLessThanThreshold) const;
+	
+	Difference ApplyDifference(TableSnapshot const& tableSnapshot);
 	
 	void RandomCardsForOpponent(TableSnapshot const& tableSnapshot);
 	
 	void CopyMyCardFromTableSnapshot(TableSnapshot const& tableSnapshot);
 	
-	void EndGame(TableSnapshot const& tableSnapshot) const;
+	TypeOfTurn EndGame(TableSnapshot const& tableSnapshot) const;
+	
+	void TouchMyCards() const;
 	
 	std::multiset < AICard, Comparation > ReturnUnusedCards(const std::multiset < AICard, Comparation >& unusedForSeqs, const std::multiset < AICard, Comparation >& unusedForGroups) const
 	{
@@ -624,7 +721,9 @@ class ArtificialIntelligence :public TableObserver
 	
 	int CalculateFactorForSequence(const AICard& card) const;
 	
-	Difference ComputeDifference(std::vector<Card> playerCards) const;
+	Difference ComputeDifference(std::vector<Card> playerCards);
+	
+	void ReduceGruppedCards();
 	
 	int CreateSeqsGroupsUnusedCards();
 	
@@ -636,16 +735,30 @@ class ArtificialIntelligence :public TableObserver
 	
 	bool RemoveCardFromDeck(const Card& card);
 	
-	int CreateCards();
-	
-	void ShowGroups() const
+public:
+	ArtificialIntelligence(IGameControl & gameControlInterface) : gameControl(gameControlInterface), lastTurn(TypeOfTurn::BEGIN), myLastTurn(TypeOfTurn::BEGIN), lastStackCard(Card_Figure::None, Card_Color::None), lastTaken(Card_Figure::None, Card_Color::None), lastPut(Card_Figure::None, Card_Color::None)
 	{
-		std::cout << groups;
+		FillTheCardDeck();
+		srand (time (NULL));
+		//     	for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
+		// 			for(int color = 1; color <= static_cast<int>(Card_Color::DIAMOND); ++color)
+		// 				cardDeck.emplace_back(static_cast<Card_Figure> (figure), static_cast<Card_Color> (color));
 	}
+	
+	void onUpdate(TableSnapshot const&);
+	
+	void GameInit();
+	
+// 	int CreateCards();
 	
 	void ShowSeqs() const
 	{
 		std::cout << sequences;
+	}
+	
+	void ShowGroups() const
+	{
+		std::cout << groups;
 	}
 	
 	int ShowCards() const;
