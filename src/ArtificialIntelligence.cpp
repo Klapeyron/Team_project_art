@@ -207,7 +207,14 @@ void ArtificialIntelligence::ReplaceOpponentCard(const auto& addedDifference)
 				{
 					opponentCards.erase(cit);
 					if (!cardDeck.empty())
-						opponentCards.emplace_back(*cardDeck.begin(), false);
+					{
+						for (const Card& card : cardDeck)
+							if (find (opponentCards.cbegin(), opponentCards.cend(), card) == opponentCards.cend())
+							{
+								opponentCards.emplace_back(card, false);
+								break;
+							}
+					}
 					else
 						std::cerr << "AI: Nie zamieniono karty przeciwnikowi! " << ". nr ruchu: " << turnNumber << std::endl;
 					break;
