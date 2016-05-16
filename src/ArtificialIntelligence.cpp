@@ -2,10 +2,15 @@
 
 void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 {
+	if (tableSnapshot.enemyEndsGame && lastTurn != TypeOfTurn::END_GAME)
+	{
+		TouchMyCards();
+		lastTurn = TypeOfTurn::END_GAME;
+	}
 	if (lastTurn == TypeOfTurn::END_GAME) return;
-	++turnNumber;
-	if(lastTurn == TypeOfTurn::BEGIN)
+	if (lastTurn == TypeOfTurn::BEGIN)
 		RandomCardsForOpponent(tableSnapshot);
+	++turnNumber;
 	
 	if(tableSnapshot.myMove)//from tableSnapshot must be updated: playerCards, stackCard
 	{
@@ -16,14 +21,14 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		{
 			difference = ApplyDifference(tableSnapshot);
 			if (difference.added.size() && difference.removed.size())
-				std::cerr << "AI: Jednocześnie wzięto: " << difference.added.size() << " i wydano: " << difference.removed.size() << " kart-ę/y!" << " nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Error: Jednocześnie wzięto: " << difference.added.size() << " i wydano: " << difference.removed.size() << " kart-ę/y!" << " nr ruchu: " << turnNumber << std::endl;
 			if(lastTurn == TypeOfTurn::OPP_TAKE && myLastTurn != TypeOfTurn::MY_FOLD)
 			{
 				if (find (difference.removed.cbegin(), difference.removed.cend(), lastPut) == difference.removed.cend())
-					std::cerr << "AI: Nie wydano odpowiedniej karty: " << lastPut.getFigure() << " " << lastPut.getColor() << "! nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Nie wydano odpowiedniej karty: " << lastPut.getFigure() << " " << lastPut.getColor() << "! nr ruchu: " << turnNumber << std::endl;
 				if (difference.removed.size() != 1)
 				{
-					std::cerr << "AI: Wydano: " << difference.removed.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Wydano: " << difference.removed.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
 					std::cerr << DIM_GREEN << difference.removed << COLOR_RESET;
 				}
 			}
@@ -31,7 +36,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		if(lastTurn == TypeOfTurn::OPP_TAKE)
 		{
 			if (lastStackCard == tableSnapshot.stackCard)
-				std::cerr << "AI: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: " << lastStackCard.getFigure() << " " << lastStackCard.getColor() << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Error: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: " << lastStackCard.getFigure() << " " << lastStackCard.getColor() << "! nr ruchu: " << turnNumber << std::endl;
 			else
 			{
 				std::list < AIOppCard >::const_iterator cit = std::find(opponentCards.cbegin(), opponentCards.cend(), AIOppCard(tableSnapshot.stackCard, true));
@@ -43,7 +48,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 					if (cit != opponentCards.cend())
 						opponentCards.erase(cit);
 					else
-						std::cerr << "AI: Nie usunięto karty przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
+						std::cerr << "AI Error: Nie usunięto karty przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
 				}
 			}
 		}
@@ -52,10 +57,10 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		if (!difference.added.size())
 		{
 			if (lastTurn == TypeOfTurn::MY_TAKE)
-				std::cerr << "AI: Dwa razy pod rząd taki sam ruch graczaaa: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Error: Dwa razy pod rząd taki sam ruch graczaaa: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			else
 				if (lastTurn != TypeOfTurn::OPP_FOLD && lastTurn != TypeOfTurn::BEGIN && lastTurn != TypeOfTurn::OPP_TAKE)
-					std::cerr << "AI: Naruszenie spójności gry: MY_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Naruszenie spójności gry: MY_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			WarningCardsCount(tableSnapshot, false);
 			
 			if (DecisionToTakeTheCard(tableSnapshot.stackCard))
@@ -75,7 +80,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				else
 				{
 					if (!RemoveCardFromDeck(tableSnapshot.stackCard))
-						std::cerr << "AI: Nie znaleziono usuwanej karty: " << tableSnapshot.stackCard.getFigure() << " " << tableSnapshot.stackCard.getColor() <<  " w talii!" << " nr ruchu: " << turnNumber << std::endl;
+						std::cerr << "AI Error: Nie znaleziono usuwanej karty: " << tableSnapshot.stackCard.getFigure() << " " << tableSnapshot.stackCard.getColor() <<  " w talii!" << " nr ruchu: " << turnNumber << std::endl;
 					gameControl.pickCardFromHiddenStack();
 					lastTurn = TypeOfTurn::MY_TAKE;
 				}
@@ -85,14 +90,14 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		{
 			WarningGameCorrectness(TypeOfTurn::MY_PUT);
 			if (lastTaken != Card(Card_Figure::None, Card_Color::None) && find (difference.added.cbegin(), difference.added.cend(), lastTaken) == difference.added.cend())
-				std::cerr << "AI: Nie znaleziono pobranej karty: " << lastTaken.getFigure() << " " << lastTaken.getColor() << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Error: Nie znaleziono pobranej karty: " << lastTaken.getFigure() << " " << lastTaken.getColor() << "! nr ruchu: " << turnNumber << std::endl;
 			if (difference.added.size() != 1)
 			{
-				std::cerr << "AI: Pobrano: " << difference.added.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Error: Pobrano: " << difference.added.size() << " kart(ę/y) zamiast jednej!" << " nr ruchu: " << turnNumber << std::endl;
 				std::cerr << DIM_BLUE << difference.added << COLOR_RESET;
 			}
 			else
-				std::cerr << "AI: Pobrano: " << DIM_BLUE << difference.added.begin()->getFigure() << " " << difference.added.begin()->getColor() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Info: Pobrano: " << DIM_BLUE << difference.added.begin()->getFigure() << " " << difference.added.begin()->getColor() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
 			WarningCardsCount(tableSnapshot, true);
 			ReplaceOpponentCard(difference.added);
 			ReduceGruppedCards();
@@ -112,14 +117,14 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				if (ungruppedCards.size() == 1)
 					lastTurn = EndGame(tableSnapshot);
 				else
-					if (UngruppedCardsPoints() <= END_GAME_POINTS)
+					if (!isFulOptionActivated && UngruppedCardsPoints() <= END_GAME_POINTS)
 						lastTurn = EndGame(tableSnapshot);
 			}
 			else
 				if (myFirstMove)
 					lastTurn = EndGame(tableSnapshot);
 				else
-					std::cerr << "AI: Brak niepogrupowanych kart! Nie wykonano ruchu!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Brak niepogrupowanych kart! Nie wykonano ruchu!" << " nr ruchu: " << turnNumber << std::endl;
 		}
 		myLastTurn = lastTurn;
 		myFirstMove = false;
@@ -131,7 +136,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			if (lastStackCard != tableSnapshot.stackCard) //jeśli wziął kartę z odkrytego stosu
 			{
 				if(lastStackCard == Card(Card_Figure::None, Card_Color::None))
-					std::cerr << "AI: Dodano pustą kartę do kart przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Dodano pustą kartę do kart przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
 				opponentCards.emplace_back(lastStackCard, true);
 				lastStackCard = tableSnapshot.stackCard;
 			}
@@ -139,10 +144,10 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				RemoveCardFromDeck(tableSnapshot.stackCard);
 		
 			if (lastTurn == TypeOfTurn::OPP_TAKE)
-				std::cerr << "AI: Dwa razy pod rząd taki sam ruch przeciwnika: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+				std::cerr << "AI Error: Dwa razy pod rząd taki sam ruch przeciwnika: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			else
 				if (lastTurn != TypeOfTurn::OPP_FOLD && lastTurn != TypeOfTurn::OPP_BEFORE_TAKE)
-					std::cerr << "AI: Naruszenie spójności gry: OPP_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Naruszenie spójności gry: OPP_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			lastTurn = TypeOfTurn::OPP_TAKE;
 		}
 		else
@@ -155,12 +160,12 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			else
 			{
 				if (lastTurn == TypeOfTurn::OPP_BEFORE_TAKE)
-					std::cerr << "AI: Dwa razy pod rząd ruch przeciwnika przed pobraniem karty!" << " nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Dwa razy pod rząd ruch przeciwnika przed pobraniem karty!" << " nr ruchu: " << turnNumber << std::endl;
 				else
 					if (lastPut != tableSnapshot.stackCard)
-						std::cerr << "AI: Nie wydano odpowiedniej karty: " << lastPut.getFigure() << " " << lastPut.getColor() << "! Na stosie znajduje się: " << tableSnapshot.stackCard.getFigure() << " " << tableSnapshot.stackCard.getColor() << "! nr ruchu: " << turnNumber << std::endl;
+						std::cerr << "AI Error: Nie wydano odpowiedniej karty: " << lastPut.getFigure() << " " << lastPut.getColor() << "! Na stosie znajduje się: " << tableSnapshot.stackCard.getFigure() << " " << tableSnapshot.stackCard.getColor() << "! nr ruchu: " << turnNumber << std::endl;
 					else
-						std::cerr << "AI: Wydano: " << DIM_GREEN << lastPut.getFigure() << " " << lastPut.getColor() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
+						std::cerr << "AI Info: Wydano: " << DIM_GREEN << lastPut.getFigure() << " " << lastPut.getColor() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
 				lastTurn = TypeOfTurn::OPP_BEFORE_TAKE;
 			}
 			lastStackCard = tableSnapshot.stackCard;
@@ -171,17 +176,17 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 void ArtificialIntelligence::WarningGameCorrectness(TypeOfTurn const& currentTurn)
 {
 	if (lastTurn == currentTurn)
-		std::cerr << "AI: Dwa razy pod rząd taki sam ruch gracza: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+		std::cerr << "AI Error: Dwa razy pod rząd taki sam ruch gracza: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 	else
 		if (lastTurn != static_cast<TypeOfTurn>(static_cast<int>(currentTurn) - 1))
-			std::cerr << "AI: Naruszenie spójności gry: " << currentTurn << " po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+			std::cerr << "AI Error: Naruszenie spójności gry: " << currentTurn << " po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 }
 
 void ArtificialIntelligence::WarningCardsCount(TableSnapshot const& tableSnapshot, const bool& isTaken)
 {
 	if (tableSnapshot.playerCards.size() != PLAYER_CARDS_COUNT + (isTaken ? 1 : 0))
 	{
-		std::cerr << "AI: Nieprawidłowa ilość kart gracza: " << tableSnapshot.playerCards.size() << " zamiast: " << PLAYER_CARDS_COUNT + (isTaken ? 1 : 0) << "! nr ruchu: " << turnNumber << std::endl;
+		std::cerr << "AI Error: Nieprawidłowa ilość kart gracza: " << tableSnapshot.playerCards.size() << " zamiast: " << PLAYER_CARDS_COUNT + (isTaken ? 1 : 0) << "! nr ruchu: " << turnNumber << std::endl;
 		for(const Card& card : tableSnapshot.playerCards)
 			std::cerr << card;
 	}
@@ -193,7 +198,7 @@ int ArtificialIntelligence::UngruppedCardsPoints() const
 	for (const AICard& ungCard : ungruppedCards)
 		points += static_cast<int>(ungCard.getFigure());
 	if (points <=0)
-		std::cerr << "AI: Błąd przy liczeniu punktów dla warunku zakończenia gry" << "! nr ruchu: " << turnNumber << std::endl;
+		std::cerr << "AI Error: Błąd przy liczeniu punktów dla warunku zakończenia gry. Suma: " << points << "! nr ruchu: " << turnNumber << std::endl;
 	return points;
 }
 
@@ -216,11 +221,11 @@ void ArtificialIntelligence::ReplaceOpponentCard(const auto& addedDifference)
 							}
 					}
 					else
-						std::cerr << "AI: Nie zamieniono karty przeciwnikowi! " << ". nr ruchu: " << turnNumber << std::endl;
+						std::cerr << "AI Error: Nie zamieniono karty przeciwnikowi! " << ". nr ruchu: " << turnNumber << std::endl;
 					break;
 				}
 				else
-					std::cerr << "AI: Przeciwnik ma taką samą kartę co gracz: " << *cit << ". nr ruchu: " << turnNumber << std::endl;
+					std::cerr << "AI Error: Przeciwnik ma taką samą kartę co gracz: " << *cit << ". nr ruchu: " << turnNumber << std::endl;
 	}
 }
 
@@ -248,7 +253,7 @@ Difference ArtificialIntelligence::ApplyDifference(TableSnapshot const& tableSna
 	for (const AICard& card : difference.added)
 		cards.emplace(card, newCardID++);
 	if (tableSnapshot.playerCards.size() != cards.size())
-		std::cerr << "AI: Nie zastosowano właściwie różnicy kart!" << " nr ruchu: " << turnNumber << std::endl;
+		std::cerr << "AI Error: Nie zastosowano właściwie różnicy kart!" << " nr ruchu: " << turnNumber << std::endl;
 // 	ShowCards();
 	return difference;
 }
@@ -292,6 +297,7 @@ void ArtificialIntelligence::TouchMyCards() const
 		gameControl.touchCard(*seq.begin());
 	for(const Group& group : groups)
 		gameControl.touchCard(*group.begin());
+	gameControl.pressOK();
 }
 
 void ArtificialIntelligence::CheckUsefulnessForOpponent()
@@ -325,7 +331,7 @@ double ArtificialIntelligence::CalculateFactorForGroup(const Card_Figure& figure
 	if(count > COLORS_COUNT - 1)
 	{
 		weight = 0.0;
-		std::cerr << "AI: Ilość kart dla jednej figury nie powinna był większa niż: " << COLORS_COUNT << std::endl;
+		std::cerr << "AI Error: Ilość kart dla jednej figury nie powinna był większa niż: " << COLORS_COUNT << std::endl;
 	}
 	return weight;
 }
@@ -372,9 +378,9 @@ int ArtificialIntelligence::CalculateFactorForSequence(const AICard& card) const
 						isTargetCard3Real = oppCard.getIsReal();
 					}
 		}
-	if (minDistance <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Karta: " << card << " - " << minCard << ". Dystans: " << minDistance << std::endl;
-	if (minDistance2 <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Karta: " << card << ". Dystans2: " << minDistance2 << std::endl;
-	if (minDistance3 <= 0) std::cerr << "AI: Nieprawidłowy dystans figur." << " Karta: " << card << ". Dystans3: " << minDistance3 << std::endl;
+	if (minDistance <= 0) std::cerr << "AI Error: Nieprawidłowy dystans figur." << " Karta: " << card << " - " << minCard << ". Dystans: " << minDistance << std::endl;
+	if (minDistance2 <= 0) std::cerr << "AI Error: Nieprawidłowy dystans figur." << " Karta: " << card << ". Dystans2: " << minDistance2 << std::endl;
+	if (minDistance3 <= 0) std::cerr << "AI Error: Nieprawidłowy dystans figur." << " Karta: " << card << ". Dystans3: " << minDistance3 << std::endl;
 	if(minDistance > 0)
 		weight += (13.0 - minDistance) / 6.0 * ((double)isTargetCardReal + 1.0);
 	if (minDistance2 > 0)
@@ -401,69 +407,95 @@ Difference ArtificialIntelligence::ComputeDifference(std::vector<Card> playerCar
 
 void ArtificialIntelligence::ReduceGruppedCards()
 {
-	for (SequencesOfCards::const_iterator it = sequences.begin(); it != sequences.end();)
+	for (SequencesOfCards::const_iterator foundSeq = sequences.begin(); foundSeq != sequences.end();)
 	{
-		for (Sequence::iterator it2 = it->begin(); it2 != it->end(); ++it2)
-			if (it2->getId() > 0)
+		for (Sequence::iterator cardFromSeq = foundSeq->begin(); cardFromSeq != foundSeq->end(); ++cardFromSeq)
+			if (cardFromSeq->getId() > 0)
 			{
-				std::list< Group >::iterator itf = groups.FindCard(it2->getId());
-				if (itf != groups.end())
+				std::list< Group >::iterator foundGroup = groups.FindCard(cardFromSeq->getId());
+				if (foundGroup != groups.end())
 				{
-					std::multiset < AICard, Comparation > sequence(it->ReturnCopy());
-					sequence.erase( std::find_if( sequence.begin(), sequence.end(), [& it2](const AICard& card){ return card.getId() == it2->getId(); } ) );
+					std::multiset < AICard, Comparation > sequence(foundSeq->ReturnCopy());
+					sequence.erase( std::find_if( sequence.begin(), sequence.end(), [& cardFromSeq](const AICard& card){ return card.getId() == cardFromSeq->getId(); } ) );
 					std::multiset < AICard, Comparation > sequence2(sequence);
 					std::multiset < AICard, Comparation > group;
-					for (const AICard& card : itf->ReturnCopy())
+					for (const AICard& card : foundGroup->ReturnCopy())
 						group.insert(card);
-					group.erase( std::find_if( group.begin(), group.end(), [& it2](const AICard& card){ return card.getId() == it2->getId(); } ) );
+					group.erase( std::find_if( group.begin(), group.end(), [& cardFromSeq](const AICard& card){ return card.getId() == cardFromSeq->getId(); } ) );
 					std::multiset < AICard, Comparation > group2(group);
 					Sequence seq(sequence);
 					Group gr(group);
 					if (gr.CheckCorrectness())
 					{
-						std::cerr << DIM_YELLOW << "AI: Zredukowano grupę: " << group2.begin()->getFigure() << COLOR_RESET << std::endl;
-						groups.erase(itf);
+						std::cerr << DIM_YELLOW << "AI Info: Zredukowano grupę: " << group2.begin()->getFigure() << COLOR_RESET << std::endl;
+						groups.erase(foundGroup);
 						groups.AddGroup(group2);
 					}
 					else
 						if (!seq.CheckCorrectness() && !gr.CheckCorrectness())// nie uwzględnia przypadku gdy dwie grupy zakrywają sekwencję
 						{
 							int seqPoints = 0, grPoints = 0;
-							for (const AICard& card : sequence2)
+							for (const AICard& card : sequence2)// strata usunięcie sekwencji
 								seqPoints += static_cast<int>(card.getFigure());
-							for (const AICard& card : group2)
+							for (const AICard& card : group2)// strata usunięcie grupy
 								grPoints += static_cast<int>(card.getFigure());
 							
-							if (!seqPoints || !grPoints)
-								std::cerr << "AI: Punkty równe zero!" << std::endl;
+							if (seqPoints <= 0 || grPoints <= 0)
+								std::cerr << "AI Error: Nieprawidłowa suma punktów: sekwencja: " << seqPoints << " grupa: " << grPoints << "!" << std::endl;
 							else
 								if (seqPoints < grPoints)
 								{
-									std::cerr << DIM_YELLOW << "AI: Usunięto sekwencję: " << it->begin()->getColor() << COLOR_RESET << std::endl;
-									ungruppedCards.insert(it->begin(), it->end());
-									it = sequences.erase(it);
+									std::cerr << DIM_YELLOW << "AI Info: Usunięto sekwencję: " << foundSeq->begin()->getColor() << COLOR_RESET << std::endl;
+									for (Sequence::const_iterator cardFromS = foundSeq->begin(); cardFromS != foundSeq->end(); ++cardFromS)
+										if (cardFromS != cardFromSeq)// pomiń aktualną kartę
+											if (groups.FindCard(cardFromS->getId()) == groups.end())
+												ungruppedCards.insert(*cardFromS);
+									foundSeq = sequences.erase(foundSeq);
 									break;
 								}
 								else
 								{
-									std::cerr << DIM_YELLOW << "AI: Usunięto grupę: " << itf->begin()->getFigure() << COLOR_RESET << std::endl;
-									ungruppedCards.insert(itf->begin(), itf->end());
-									groups.erase(itf);
+									std::cerr << DIM_YELLOW << "AI Info: Usunięto grupę: " << foundGroup->begin()->getFigure() << COLOR_RESET << std::endl;
+									for (Group::const_iterator cardFromG = foundGroup->begin(); cardFromG != foundGroup->end(); ++cardFromG)
+										if (sequences.FindCard(cardFromG->getId()) == sequences.end())
+											ungruppedCards.insert(*cardFromG);
+									groups.erase(foundGroup);
 								}
 						}
 						else
 							if (seq.CheckCorrectness() && !gr.CheckCorrectness())
 							{
-								std::cerr << DIM_YELLOW << "AI: Zredukowano sekwencję: " << it->begin()->getColor() << COLOR_RESET << std::endl;
-								it = sequences.erase(it);
-								sequences.AddSequence(sequence2);
-								break;
+								std::multiset < AICard, Comparation > sequence3(sequence);
+								Sequence seq2(sequence);// układanie drugiej sekwencji na prawo od podziału
+								int seqPoints = 0, grPoints = 0;
+								for (const AICard& card : sequence)// strata za zredukowania sekwencji
+									seqPoints += static_cast<int>(card.getFigure());
+								for (const AICard& card : group2)// strata usunięcie grupy
+									grPoints += static_cast<int>(card.getFigure());
+								if (seqPoints < grPoints)
+								{
+									std::cerr << DIM_YELLOW << "AI Info: Zredukowano sekwencję: " << foundSeq->begin()->getColor() << COLOR_RESET << std::endl;
+									for (const AICard& card : sequence)
+									ungruppedCards.insert(card);
+									foundSeq = sequences.erase(foundSeq);// usunięcie całej sekwencji
+									sequences.AddSequence(sequence2);// dodanie zredukowanej sekwencji
+									if (seq2.CheckCorrectness()) sequences.AddSequence(sequence3);
+									break;
+								}
+								else
+								{
+									std::cerr << DIM_YELLOW << "AI Info: Usunięto grupę: " << foundGroup->begin()->getFigure() << COLOR_RESET << std::endl;
+									for (Group::const_iterator cardFromG = foundGroup->begin(); cardFromG != foundGroup->end(); ++cardFromG)
+										if (sequences.FindCard(cardFromG->getId()) == sequences.end())
+											ungruppedCards.insert(*cardFromG);
+									groups.erase(foundGroup);
+								}
 							}
 				}
 			}
 			else
-				std::cerr << "AI: Redukcja kart - id karty równe zero!" << std::endl;
-		++it;
+				std::cerr << "AI Error: Redukcja kart - id karty równe zero!" << std::endl;
+		++foundSeq;
 	}
 }
 
@@ -538,32 +570,6 @@ void ArtificialIntelligence::GameInit()
 	turnNumber = 0;
 }
 
-// int ArtificialIntelligence::CreateCards()
-// {
-// 	cards.emplace(Card_Figure::THREE, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::THREE, Card_Color::CLUB);
-// 	cards.emplace(Card_Figure::SEVEN, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::FOUR, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::TWO, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::KING, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::NINE, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::EIGHT, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::FIVE, Card_Color::HEART);
-// 	cards.emplace(Card_Figure::FIVE, Card_Color::DIAMOND);
-// 	cards.emplace(Card_Figure::FIVE, Card_Color::CLUB);
-// 	cards.emplace(Card_Figure::FOUR, Card_Color::HEART);
-// 	cards.emplace(Card_Figure::QUEEN, Card_Color::DIAMOND);
-// 	cards.emplace(Card_Figure::THREE, Card_Color::HEART);
-// 	cards.emplace(Card_Figure::FIVE, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::FIVE, Card_Color::SPADE);
-// 	cards.emplace(Card_Figure::KING, Card_Color::DIAMOND);
-// 	cards.emplace(Card_Figure::SEVEN, Card_Color::DIAMOND);
-// 	cards.emplace(Card_Figure::JACK, Card_Color::DIAMOND);
-// 	cards.emplace(Card_Figure::SEVEN, Card_Color::HEART);
-// 	
-// 	return cards.size();
-// }
-
 int ArtificialIntelligence::ShowCards() const
 {
 	std::cout << "Cards:" << std::endl;
@@ -574,7 +580,7 @@ int ArtificialIntelligence::ShowCards() const
 
 int ArtificialIntelligence::ShowCardDeck() const
 {
-	std::cout << "AICard Deck:" << std::endl;
+	std::cout << "Cards Deck:" << std::endl;
 	for (const Card& card : cardDeck)
 		std::cout << card;
 	return cardDeck.size();

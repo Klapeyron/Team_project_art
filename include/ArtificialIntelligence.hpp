@@ -252,14 +252,6 @@ public:
 	}
 };
 
-// struct Comparation2
-// {
-// 	bool operator()(const Sequence& a, const Sequence& b)
-// 	{
-// 		return a.size() < b.size();
-// 	}
-// };
-
 class SequencesOfCards
 {
 	std::list< Sequence > sequences;
@@ -334,6 +326,14 @@ public:
 			if (seq.FindCard(card))
 				return true;
 		return false;
+	}
+	
+	std::list< Sequence >::iterator FindCard(const int& cardId)
+	{
+		for (std::list < Sequence >::iterator it = sequences.begin(); it != sequences.end(); ++it)
+			if (it->FindCard(cardId))
+				return it;
+		return sequences.end();
 	}
 	
 	iterator erase(const_iterator position)
@@ -598,17 +598,17 @@ public:
 		return false;
 	}
 	
-	iterator erase(const_iterator position)
-	{
-		return groups.erase(position);
-	}
-	
 	std::list< Group >::iterator FindCard(const int& cardId)
 	{
 		for (std::list < Group >::iterator it = groups.begin(); it != groups.end(); ++it)
 			if (it->FindCard(cardId))
 				return it;
 		return groups.end();
+	}
+	
+	iterator erase(const_iterator position)
+	{
+		return groups.erase(position);
 	}
 	
 	std::list< Group >::iterator begin()
@@ -674,7 +674,7 @@ class ArtificialIntelligence :public TableObserver
 	SequencesOfCards sequences;//znalezione sekwencje
 	GroupsOfCards groups;//znalezione grupy
 	std::list < AIOppCard > opponentCards;//karty przeciwnika
-	bool myFirstMove = true;
+	bool myFirstMove = true, isFulOptionActivated = false;
 	int newCardID = 1, turnNumber = 0;
 
 	void FillTheCardDeck()
@@ -749,7 +749,10 @@ public:
 	
 	void GameInit();
 	
-// 	int CreateCards();
+	void SetFulOption(const bool& isActive)
+	{
+		isFulOptionActivated = isActive;
+	}
 	
 	void ShowSeqs() const
 	{
