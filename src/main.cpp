@@ -3,13 +3,11 @@
 #include "GameControl.hpp"
 
 #include "CardOperators.hpp"
-#include <iostream>
-
-
 
 int main()
 {
     DetectionSystem detectionSystem(printScreenFileName);
+    detectionSystem.detectWindowByMouseClickOnIt();
     GameControl gameControl;
 
     detectionSystem.registerOberver(gameControl);
@@ -17,7 +15,6 @@ int main()
     ArtificialIntelligence artificialIntelligence(gameControl);
     detectionSystem.registerOberver(artificialIntelligence);
 
-    detectionSystem.detectWindowByMouseClickOnIt();
     while(true)
     {
       detectionSystem.makePrintScreen();

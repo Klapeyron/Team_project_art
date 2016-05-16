@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "IGameControl.hpp"
 #include "Position.hpp"
 #include "ButtonsSnapshot.hpp"

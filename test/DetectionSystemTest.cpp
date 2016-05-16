@@ -89,7 +89,7 @@ TEST (DISABLED_DetectionSystemTest, enemyCardTakenTest_customSize)
 
   output.stackCard = Card(Card_Figure::A, Card_Color::DIAMOND);
   output.myMove = false;
-  output.opponentTookCardFromHiddenStack = true;
+  output.enemyTookCard = true;
 
   EXPECT_CALL(tableObserver, onUpdate(ContainsThisSnapshot(output)));
   detectionSystem.processTable();

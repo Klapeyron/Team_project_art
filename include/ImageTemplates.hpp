@@ -25,6 +25,7 @@ class ImageTemplates {
   const std::string okButtonFileName = "ok.tiff";
   const std::string stukamButtonFileName = "stukam.tiff";
   const std::string startButtonFileName = "start.tiff";
+  const std::string blueBackgroundFileName = "stackBackground.tiff";
 
   const std::string templatesDirectory = "../templates/";
  public:
@@ -36,5 +37,5 @@ class ImageTemplates {
   std::array<cv::Mat, 4> stackColorTemplates;
 
   const cv::Mat leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
-  const cv::Mat pasButton, okButton, stukamButton, startButton;
+  const cv::Mat pasButton, okButton, stukamButton, startButton, blueBackground;
 };

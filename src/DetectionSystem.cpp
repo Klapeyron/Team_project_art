@@ -108,7 +108,7 @@ void DetectionSystem::processTable()
   std::move(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
 
   std::tie(tableSnapshot.myMove, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::myTurn);
-  std::tie(tableSnapshot.opponentTookCardFromHiddenStack, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::enemyCardTaken);
+  std::tie(tableSnapshot.enemyTookCard, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::enemyCardTaken);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
     ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton);
@@ -118,6 +118,12 @@ void DetectionSystem::processTable()
     ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton);
   std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
     ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::startButton);
+  // std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first, tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
+  //   ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground);
+
+  // TODO: margin for buttons positions
+
+  std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground);  
 
   if(previousTableSnapshot == tableSnapshot)
     return;

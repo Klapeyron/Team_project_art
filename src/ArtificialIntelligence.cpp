@@ -126,7 +126,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 	}
 	else//from tableSnapshot must be updated: opponentTookCardFromHiddenStack, stackCard
 	{
-		if (tableSnapshot.opponentTookCardFromHiddenStack) //jeśli wziął kartę
+		if (tableSnapshot.enemyTookCard) //jeśli wziął kartę
 		{
 			if (lastStackCard != tableSnapshot.stackCard) //jeśli wziął kartę z odkrytego stosu
 			{
