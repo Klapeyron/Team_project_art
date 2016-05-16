@@ -1,4 +1,6 @@
 #include "DetectionSystem.hpp"
+#include <iostream>
+#include "TableSnapshotOperators.hpp"
 
 DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFilePath(imageFilePath),
                                                                     ImageTemplates("../templates/"),
@@ -120,5 +122,6 @@ void DetectionSystem::processTable()
   if(previousTableSnapshot == tableSnapshot)
     return;
   previousTableSnapshot = tableSnapshot;
+  std::cout << previousTableSnapshot << std::endl;
   TableSubject::notify(tableSnapshot);
 }
