@@ -72,13 +72,14 @@ void DetectionSystem::processTable()
   auto lowerCards = AreaOfInterestCutter::cutLowerCards(greenField);
   auto enemyCards = AreaOfInterestCutter::cutEnemyCards(greenField);
   auto middle = AreaOfInterestCutter::cutMiddlePart(greenField);
-  auto stack = AreaOfInterestCutter::cutRightStackPart(greenField);
+  auto leftStack = AreaOfInterestCutter::cutLeftStackPart(greenField);
+  auto rightStack = AreaOfInterestCutter::cutRightStackPart(greenField);
 
   TableSnapshot tableSnapshot;
 
   auto stackCardHandle = std::async(std::launch::async, [&]()
    {
-     return findStackCard(stack);
+     return findStackCard(rightStack);
    });
 
   auto upperCardsHandle = std::async(std::launch::async, [&]()
@@ -138,7 +139,7 @@ void DetectionSystem::processTable()
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first,
            tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
-      ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground, AreaOfInterestCutter::RightStackPosition);
+      ImageAnalyzer::containsImageTemplate(leftStack, ImageTemplates::blueBackground, AreaOfInterestCutter::LeftStackPosition);
 
   std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::blueBackground);
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
