@@ -72,14 +72,16 @@ void DetectionSystem::processTable()
   auto lowerCards = AreaOfInterestCutter::cutLowerCards(greenField);
   auto enemyCards = AreaOfInterestCutter::cutEnemyCards(greenField);
   auto middle = AreaOfInterestCutter::cutMiddlePart(greenField);
-  auto leftStack = AreaOfInterestCutter::cutLeftStackPart(greenField);
-  auto rightStack = AreaOfInterestCutter::cutRightStackPart(greenField);
+
+  // TODO: add detection of hidden stack and stack and correct set of images
+  auto hiddenStack = AreaOfInterestCutter::cutLeftStackPart(greenField);
+  auto stack = AreaOfInterestCutter::cutRightStackPart(greenField);
 
   TableSnapshot tableSnapshot;
 
   auto stackCardHandle = std::async(std::launch::async, [&]()
    {
-     return findStackCard(rightStack);
+     return findStackCard(stack);
    });
 
   auto upperCardsHandle = std::async(std::launch::async, [&]()
@@ -139,7 +141,7 @@ void DetectionSystem::processTable()
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first,
            tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
-      ImageAnalyzer::containsImageTemplate(leftStack, ImageTemplates::blueBackground, AreaOfInterestCutter::LeftStackPosition);
+      ImageAnalyzer::containsImageTemplate(hiddenStack, ImageTemplates::blueBackground, AreaOfInterestCutter::LeftStackPosition);
 
   std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::blueBackground);
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;

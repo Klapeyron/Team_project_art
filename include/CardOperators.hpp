@@ -18,5 +18,5 @@ inline std::ostream& operator<<(::std::ostream& os, const Card_Figure& figure) {
 }
 
 inline std::ostream& operator<<(::std::ostream& os, const Card& card) {
-  return os << card.getFigure() << " " << card.getColor() << std::endl;
+  return os << card.getFigure() << " " << card.getColor();
 }
