@@ -1,6 +1,4 @@
 #include "DetectionSystem.hpp"
-#include <iostream>
-#include "TableSnapshotOperators.hpp"
 
 DetectionSystem::DetectionSystem(std::string const& imageFilePath) :tableImageFilePath(imageFilePath),
                                                                     ImageTemplates("../templates/"),
@@ -110,24 +108,39 @@ void DetectionSystem::processTable()
   std::tie(tableSnapshot.myMove, std::ignore) = ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::myTurn);
   std::tie(tableSnapshot.enemyTookCard, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::enemyCardTaken);
 
-  std::tie(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton);
-  std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasButton);
-  std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton);
-  std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first, tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
-    ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::startButton);
-  // std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first, tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
-  //   ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground);
+  std::tie(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton);
 
-  // TODO: margin for buttons positions
+  std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasButton);
 
-  std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground);  
+  std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton);
+
+  std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::startButton);
+
+  std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first,
+           tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
+      ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground);
+
+  std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::blueBackground);
+  tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
+
+  for(auto & button : tableSnapshot.buttons)
+  {
+    auto previousX = button.second.second.getX();
+    auto previousY = button.second.second.getY();
+    button.second.second.setNewPosition(previousX + 5, previousY + 5);
+  }
 
   if(previousTableSnapshot == tableSnapshot)
     return;
   previousTableSnapshot = tableSnapshot;
-  std::cout << previousTableSnapshot << std::endl;
+
   TableSubject::notify(tableSnapshot);
 }
