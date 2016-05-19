@@ -34,11 +34,11 @@ class ImageTemplates {
   using CardTemplatesType = FigureTemplatesType;
   
   ImageTemplates(std::string const& templatesDir);
-  std::array<cv::Mat, 13> blackCardTemplates;
-  std::array<cv::Mat, 13> redCardTemplates;
-  std::array<cv::Mat, 13> blackStackCardTemplates;
-  std::array<cv::Mat, 13> redStackCardTemplates;
-  std::array<cv::Mat, 4> stackColorTemplates;
+  FigureTemplatesType blackCardTemplates;
+  FigureTemplatesType redCardTemplates;
+  FigureTemplatesType blackStackCardTemplates;
+  FigureTemplatesType redStackCardTemplates;
+  ColorTemplatesType stackColorTemplates;
 
   const cv::Mat leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
   const cv::Mat pasButton, okButton, stukamButton, startButton, blueBackground;
