@@ -17,7 +17,7 @@
 #define MIN_GROUP_LEN (3)
 #define COLORS_COUNT (4)
 #define PLAYER_CARDS_COUNT (10)
-#define END_GAME_POINTS (10)
+#define END_GAME_POINTS (11)
 
 #define COLOR_RESET "\e[0m"
 #define BLACK "\e[0;30m"
@@ -44,7 +44,7 @@ class AICard: public Card
 	
 	friend std::ostream& operator<< ( std::ostream& wyjscie, const AICard& card )
 	{
-		wyjscie << card.getFigure() << " " << card.getColor() << ", Id: " << card.getId() << ", Usefulness: " << card.getUsefulnessForOpponent() << std::endl;
+		wyjscie << card.getFigure() << " " << card.getColor() << ", Id: " << card.getId() << ", Usefulness: " << card.getUsefulnessForOpponent() << "%" << std::endl;
 		return wyjscie;
 	}
 	
@@ -676,22 +676,27 @@ class ArtificialIntelligence :public TableObserver
 	std::list < AIOppCard > opponentCards;//karty przeciwnika
 	bool myFirstMove = true, isFulOptionActivated = false;
 	int newCardID = 1, turnNumber = 0;
+	double usefulnessForOpponentTolerance = 5.0, putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSingleCards = 30.0, theHeaviestCardUsfullnessForOppLowerThenThresholdForSingleCards = 40.0, putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSmallCollection = 20.0, theHeaviestCardUsfullnessForOppLowerThenThresholdForSmallCollection = 35.0;
 
 	void FillTheCardDeck()
 	{
 		cardDeck.clear();
-		for (const auto& figure : Card_Figure())
-			for (const auto& color : Card_Color())
+		for (const Card_Figure& figure : Card_Figure())
+			for (const Card_Color& color : Card_Color())
 				cardDeck.emplace_back(figure, color);
 	}
 	
-	void WarningGameCorrectness(TypeOfTurn const& currentTurn);
+	void ShowSettingsInfo();
+	
+	void WarningTurnCorrectness(TypeOfTurn const& currentTurn);
 	
 	void WarningCardsCount(TableSnapshot const& tableSnapshot, const bool& isTaken);
 	
 	int UngruppedCardsPoints() const;
 	
-	void ReplaceOpponentCard(const auto& addedDifference);
+	void ReplaceOpponentCard(const std::list< AICard >& addedDifference);
+	
+	AICard ChooseCardToBeReallyPut() const;
 	
 	AICard ChooseCardToPut(std::multiset < AICard, Comparation > sourceCards, const double& tryToThrowTheGreatestFigureThreshold, const double& ifTheUsefulnessIsLessThanThreshold) const;
 	
@@ -701,7 +706,9 @@ class ArtificialIntelligence :public TableObserver
 	
 	void CopyMyCardFromTableSnapshot(TableSnapshot const& tableSnapshot);
 	
-	TypeOfTurn EndGame(TableSnapshot const& tableSnapshot) const;
+	TypeOfTurn EndGame(TableSnapshot const& tableSnapshot);
+	
+	Card PossibleToEndGameForNoUngruppedCards() const;
 	
 	void TouchMyCards() const;
 	
@@ -717,6 +724,8 @@ class ArtificialIntelligence :public TableObserver
 	
 	void CheckUsefulnessForOpponent();
 	
+	AICard MinUsefulnessForOpponentCardCollection(const std::vector < AICard >& sourceCards) const;
+	
 	double CalculateFactorForGroup(const Card_Figure& figure) const;
 	
 	int CalculateFactorForSequence(const AICard& card) const;
@@ -724,10 +733,11 @@ class ArtificialIntelligence :public TableObserver
 	Difference ComputeDifference(std::vector<Card> playerCards);
 	
 	void ReduceGruppedCards();
+	bool CheckCorrectnessOfUnusedCards();
 	
-	int CreateSeqsGroupsUnusedCards();
+	int CreateCollectionsAndUnusedCards();
 	
-	std::multiset < AICard, Comparation > CreateSeqsGroupsUnusedCards(std::multiset < AICard, Comparation > sourceCards, const int& minSequenceLen = MIN_SEQ_LEN, const int& minGroupLen = MIN_GROUP_LEN) const;
+	std::multiset < AICard, Comparation > CreateCollectionsAndUnusedCards(std::multiset < AICard, Comparation > sourceCards, const int& minSequenceLen, const int& minGroupLen, SequencesOfCards& sequences, GroupsOfCards& groups) const;
 	
 	bool DecisionToTakeTheCard(const AICard& card) const;
 	
@@ -735,9 +745,17 @@ class ArtificialIntelligence :public TableObserver
 	
 	bool RemoveCardFromDeck(const Card& card);
 	
+	int CardCountWithTheSameFigureInCardDeck(const Card& checkedCard) const;
+	
 public:
-	ArtificialIntelligence(IGameControl & gameControlInterface) : gameControl(gameControlInterface), lastTurn(TypeOfTurn::BEGIN), myLastTurn(TypeOfTurn::BEGIN), lastStackCard(Card_Figure::None, Card_Color::None), lastTaken(Card_Figure::None, Card_Color::None), lastPut(Card_Figure::None, Card_Color::None)
+	ArtificialIntelligence(IGameControl & gameControlInterface, const bool& fulOptionActivate = false, const double& usefulnessForOpponentTolerance = 5.0, const double& putTheHeaviestCardIfUsefullnessIsLowerThenThFSiC = 30.0, const double& theHeaviestCardUsfullnessLowerThenThFSiC = 40.0, const double& putTheHeaviestCardIfUsefullnessIsLowerThenThFSmC = 20.0, const double& theHeaviestCardUsfullnessLowerThenThFSmC = 35.0) : gameControl(gameControlInterface), isFulOptionActivated(fulOptionActivate)
 	{
+		GameInit();
+		SetUsefulnessForOpponentTolerance(usefulnessForOpponentTolerance);
+		SetThForPutTheHeaviestCardIfUsefullnessIsLowerThenFSiC(putTheHeaviestCardIfUsefullnessIsLowerThenThFSiC);
+		SetThForTheHeaviestCardUsfullnessLowerThenFSiC(theHeaviestCardUsfullnessLowerThenThFSiC);
+		SetThForPutTheHeaviestCardIfUsefullnessIsLowerThenFSmC(putTheHeaviestCardIfUsefullnessIsLowerThenThFSmC);
+		SetThForTheHeaviestCardUsfullnessLowerThenFSmC(theHeaviestCardUsfullnessLowerThenThFSmC);
 		FillTheCardDeck();
 		srand (time (NULL));
 		//     	for(int figure = 1; figure <= static_cast<int>(Card_Figure::KING); ++figure)
@@ -752,6 +770,41 @@ public:
 	void SetFulOption(const bool& isActive)
 	{
 		isFulOptionActivated = isActive;
+	}
+	
+	double SetUsefulnessForOpponentTolerance(const double& newUsefulnessForOpponentTolerance)
+	{
+		if (newUsefulnessForOpponentTolerance >= 0.0 && newUsefulnessForOpponentTolerance <= 100.0)
+			usefulnessForOpponentTolerance = newUsefulnessForOpponentTolerance;
+		return usefulnessForOpponentTolerance;
+	}
+	
+	double SetThForPutTheHeaviestCardIfUsefullnessIsLowerThenFSiC(const double& putTheHeaviestCardIfUsefullnessIsLowerThenThFSiC)
+	{
+		if (putTheHeaviestCardIfUsefullnessIsLowerThenThFSiC >= 0.0 && putTheHeaviestCardIfUsefullnessIsLowerThenThFSiC <= 100.0)
+			putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSingleCards = putTheHeaviestCardIfUsefullnessIsLowerThenThFSiC;
+		return putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSingleCards;
+	}
+	
+	double SetThForTheHeaviestCardUsfullnessLowerThenFSiC(const double& theHeaviestCardUsfullnessLowerThenThFSiC)
+	{
+		if (theHeaviestCardUsfullnessLowerThenThFSiC >= 0.0 && theHeaviestCardUsfullnessLowerThenThFSiC <= 100.0)
+			theHeaviestCardUsfullnessForOppLowerThenThresholdForSingleCards = theHeaviestCardUsfullnessLowerThenThFSiC;
+		return theHeaviestCardUsfullnessForOppLowerThenThresholdForSingleCards;
+	}
+	
+	double SetThForPutTheHeaviestCardIfUsefullnessIsLowerThenFSmC(const double& putTheHeaviestCardIfUsefullnessIsLowerThenThFSmC)
+	{
+		if (putTheHeaviestCardIfUsefullnessIsLowerThenThFSmC >= 0.0 && putTheHeaviestCardIfUsefullnessIsLowerThenThFSmC <= 100.0)
+			putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSmallCollection = putTheHeaviestCardIfUsefullnessIsLowerThenThFSmC;
+		return putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSmallCollection;
+	}
+	
+	double SetThForTheHeaviestCardUsfullnessLowerThenFSmC(const double& theHeaviestCardUsfullnessLowerThenThFSmC)
+	{
+		if (theHeaviestCardUsfullnessLowerThenThFSmC >= 0.0 && theHeaviestCardUsfullnessLowerThenThFSmC <= 100.0)
+			theHeaviestCardUsfullnessForOppLowerThenThresholdForSmallCollection = theHeaviestCardUsfullnessLowerThenThFSmC;
+		return theHeaviestCardUsfullnessForOppLowerThenThresholdForSmallCollection;
 	}
 	
 	void ShowSeqs() const
