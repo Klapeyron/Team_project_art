@@ -2,7 +2,7 @@
 
 cv::Mat AreaOfInterestCutter::cutGreenField(cv::Mat const& tableImage, Position leftUpperPosition)
 {
-  return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 714, 597));
+  return tableImage(cv::Rect(leftUpperPosition.getX() + 8, leftUpperPosition.getY() + 6, 726, 597));
 }
 
 cv::Mat AreaOfInterestCutter::cutUpperCards(cv::Mat const& greenField)
@@ -25,7 +25,12 @@ cv::Mat AreaOfInterestCutter::cutMiddlePart(cv::Mat const& greenField)
   return greenField(cv::Rect(187, 123, 333, 218));
 }
 
-cv::Mat AreaOfInterestCutter::cutStackPart(cv::Mat const& greenField)
+cv::Mat AreaOfInterestCutter::cutLeftStackPart(cv::Mat const& greenField)
 {
-  return greenField(cv::Rect(600, 175, 85, 100));
+  return greenField(cv::Rect(15, 160, 125, 100));
+}
+
+cv::Mat AreaOfInterestCutter::cutRightStackPart(cv::Mat const& greenField)
+{
+  return greenField(cv::Rect(600, 160, 125, 100));
 }

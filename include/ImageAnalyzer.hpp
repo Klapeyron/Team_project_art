@@ -10,5 +10,7 @@ const int MATCH_METHOD = CV_TM_CCOEFF_NORMED;
 
 class ImageAnalyzer {
  public:
-  std::tuple<bool, Position> containsImageTemplate(cv::Mat const& image, cv::Mat const& templ);
+  std::tuple<bool, Position> containsImageTemplate(cv::Mat const& image,
+                                                   cv::Mat const& templ,
+                                                   cv::Rect referencePoint = cv::Rect(0,0,0,0));
 };

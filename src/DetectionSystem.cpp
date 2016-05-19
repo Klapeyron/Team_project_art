@@ -16,7 +16,6 @@ std::vector<Card> DetectionSystem::getCardsFromSelectedArea(FigureTemplatesType 
     if(figureMatched)
     {
       auto figure = static_cast<Card_Figure>(std::distance(figureTemplates.begin(),it) + 1);
-      position.setNewPosition(position.getX() + leftUpperPosition.getX() + 5, position.getY() + leftUpperPosition.getY() + 5);
       foundCards.emplace_back(figure, colorOfCardsInArea, position);
     }
   }
@@ -53,11 +52,11 @@ Card DetectionSystem::findStackCard(Image const& stackArea)
 
   auto foundColor = searchForColorInStackArea(ImageTemplates::stackColorTemplates);
   auto foundFigure = searchForFigureInStackArea(ImageTemplates::blackStackCardTemplates);
-  
+
   if(Card_Figure::None == foundFigure)
     foundFigure = searchForFigureInStackArea(ImageTemplates::redStackCardTemplates);
 
-  return Card(foundFigure, foundColor);
+  return Card(foundFigure, foundColor, stackCardPosition);
 }
 
 void DetectionSystem::processTable()
@@ -73,34 +72,47 @@ void DetectionSystem::processTable()
   auto lowerCards = AreaOfInterestCutter::cutLowerCards(greenField);
   auto enemyCards = AreaOfInterestCutter::cutEnemyCards(greenField);
   auto middle = AreaOfInterestCutter::cutMiddlePart(greenField);
-  auto stack = AreaOfInterestCutter::cutStackPart(greenField);
+  auto stack = AreaOfInterestCutter::cutRightStackPart(greenField);
 
   TableSnapshot tableSnapshot;
 
   auto stackCardHandle = std::async(std::launch::async, [&]()
-                                    {
-                                      return findStackCard(stack);
-                                    });
+   {
+     return findStackCard(stack);
+   });
 
   auto upperCardsHandle = std::async(std::launch::async, [&]()
-                                     {
-                                       auto heartCards = getCardsFromSelectedArea(ImageTemplates::redCardTemplates, upperCards, Card_Color::HEART);
-                                       auto clubCards = getCardsFromSelectedArea(ImageTemplates::blackCardTemplates, upperCards, Card_Color::CLUB);
-                                       std::move(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
-                                       return heartCards;
-                                     });
+   {
+     auto heartCards = getCardsFromSelectedArea(ImageTemplates::redCardTemplates, upperCards, Card_Color::HEART);
+     auto clubCards = getCardsFromSelectedArea(ImageTemplates::blackCardTemplates, upperCards, Card_Color::CLUB);
+     std::move(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
+     for(auto & card : heartCards)
+     {
+       card.setNewPosition(card.getX() + leftUpperPosition.getX() + AreaOfInterestCutter::UpperCardsPosition.x +5,
+                           card.getY() + leftUpperPosition.getY() + AreaOfInterestCutter::UpperCardsPosition.y +5);
+     }
+     return heartCards;
+   });
 
   auto lowerCardsHandle = std::async(std::launch::async, [&]()
-                                     {
-                                       auto diamondCards = getCardsFromSelectedArea(ImageTemplates::redCardTemplates, lowerCards, Card_Color::DIAMOND);
-                                       auto spadeCards = getCardsFromSelectedArea(ImageTemplates::blackCardTemplates, lowerCards, Card_Color::SPADE);
-                                       std::move(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
-                                       return diamondCards;
-                                     });
+   {
+     auto diamondCards = getCardsFromSelectedArea(ImageTemplates::redCardTemplates, lowerCards, Card_Color::DIAMOND);
+     auto spadeCards = getCardsFromSelectedArea(ImageTemplates::blackCardTemplates, lowerCards, Card_Color::SPADE);
+     std::move(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
+     for(auto & card : diamondCards)
+     {
+       card.setNewPosition(card.getX() + leftUpperPosition.getX() + AreaOfInterestCutter::LowerCardsPosition.x +5,
+                           card.getY() + leftUpperPosition.getY() + AreaOfInterestCutter::LowerCardsPosition.y +5);
+     }
+     return diamondCards;
+   });
 
   auto foundUpperCards = upperCardsHandle.get();
   auto foundLowerCards = lowerCardsHandle.get();
   tableSnapshot.stackCard = stackCardHandle.get();
+  tableSnapshot.stackCard.setNewPosition(
+      tableSnapshot.stackCard.getX() + AreaOfInterestCutter::RightStackPosition.x + leftUpperPosition.getX(),
+      tableSnapshot.stackCard.getY() + AreaOfInterestCutter::RightStackPosition.y + leftUpperPosition.getY());
 
   std::move(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
   std::move(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
@@ -110,23 +122,23 @@ void DetectionSystem::processTable()
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
-      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton);
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton, AreaOfInterestCutter::MiddlePartPosition);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second) =
-      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasButton);
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasButton, AreaOfInterestCutter::MiddlePartPosition);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
-      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton);
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton, AreaOfInterestCutter::MiddlePartPosition);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
-      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::startButton);
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::startButton, AreaOfInterestCutter::MiddlePartPosition);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first,
            tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
-      ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground);
+      ImageAnalyzer::containsImageTemplate(stack, ImageTemplates::blueBackground, AreaOfInterestCutter::RightStackPosition);
 
   std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::blueBackground);
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
