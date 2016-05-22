@@ -6,8 +6,6 @@
 #include "TableObserver.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 #include "CardOperators.hpp"
 #include <iostream>
 #include <cstring>

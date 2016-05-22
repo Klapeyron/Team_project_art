@@ -10,6 +10,7 @@ inline std::ostream& operator<<(::std::ostream& os, const Card_Color& color) {
 }
 
 inline std::ostream& operator<<(::std::ostream& os, const Card_Figure& figure) {
+  if(Card_Figure::None == figure) return os << "None";
   if(Card_Figure::A == figure) return os << "A";
   if(Card_Figure::JACK == figure) return os << "JACK";
   if(Card_Figure::QUEEN == figure) return os << "QUEEN";
