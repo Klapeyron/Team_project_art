@@ -56,7 +56,21 @@ void GameControl::pressOK()
   std::cout << "pressOk" << std::endl;
   setPosition(tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second);
 }
-
+void GameControl::pressOkDisabled()
+{
+  std::cout << "pressOkDisabled" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::OK_DISABLED_BUTTON].second);
+}
+void GameControl::pressPassDisabled()
+{
+  std::cout << "pressPassDisabled" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::PAS_DISABLED_BUTTON].second);
+}
+void GameControl::pressKnockDisabled()
+{
+  std::cout << "pressKnockKnockDisabled" << std::endl;
+  setPosition(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second);
+}
 void GameControl::setPosition(const Position & position)
 {
   std::string x = std::to_string(position.getX());

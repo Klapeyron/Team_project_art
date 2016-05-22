@@ -13,4 +13,7 @@ class GameControlMock :public IGameControl {
   MOCK_METHOD0(pressOK,void());
   MOCK_METHOD0(pressPass,void());
   MOCK_METHOD0(pressKnock,void());
+  MOCK_METHOD0(pressKnockDisabled,void());
+  MOCK_METHOD0(pressOkDisabled,void());
+  MOCK_METHOD0(pressPassDisabled,void());
 };

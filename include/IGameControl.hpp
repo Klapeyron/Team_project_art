@@ -12,4 +12,7 @@ class IGameControl {
   virtual void pressOK() = 0;
   virtual void pressPass() = 0;
   virtual void pressKnock() = 0;
+  virtual void pressOkDisabled() = 0;
+  virtual void pressPassDisabled() = 0;
+  virtual void pressKnockDisabled() = 0;
 };

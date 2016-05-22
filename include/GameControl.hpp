@@ -28,4 +28,7 @@ public:
   void pressOK();  
   void pressPass();
   void pressKnock();
+  void pressOkDisabled();
+  void pressPassDisabled();
+  void pressKnockDisabled();
 };
