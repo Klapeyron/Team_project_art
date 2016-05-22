@@ -11,6 +11,7 @@
 #include "CardOperators.hpp"
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 
 class GameControl :public IGameControl, public TableObserver
 {
@@ -18,6 +19,7 @@ private:
   void setPosition(const Position & position);
   void mouseClick(int button);
   TableSnapshot tableSnapshot;
+  Position getPositionOfCard(const Card & card);
 public:
   void onUpdate(TableSnapshot const& tableSnapshot);
   void pickCardFromHiddenStack();

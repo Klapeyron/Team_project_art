@@ -1,4 +1,10 @@
  #include "GameControl.hpp"
+Position GameControl::getPositionOfCard(const Card & card)
+{
+  auto it = find(tableSnapshot.playerCards.cbegin(),tableSnapshot.playerCards.cend(),card);
+  Position pos(it->getX(),it->getY());
+  return pos;
+}
 void GameControl::pressPass()
 {
   std::cout << "pressPass" << std::endl;
@@ -30,8 +36,7 @@ void GameControl:: pickCardFromStack()
 void GameControl:: throwMyCard(Card const &card)
 {
   std::cout << "throwMyCard " << card << std::endl;
-  Position pos(card.getX(),card.getY());
-  setPosition(pos);
+  setPosition(getPositionOfCard(card));
 }
 
 void GameControl:: endGame()
@@ -43,8 +48,7 @@ void GameControl:: endGame()
 void GameControl::touchCard(const Card &card)
 {
   std::cout << "touchCard " << card << std::endl;
-  Position pos(card.getX(),card.getY());
-  setPosition(pos);
+  setPosition(getPositionOfCard(card));
 }
 
 void GameControl::pressOK()

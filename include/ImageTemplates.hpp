@@ -2,7 +2,7 @@
 
 #include <array>
 #include <string>
-#include <opencv/cv.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 class ImageTemplates {  

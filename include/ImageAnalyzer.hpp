@@ -1,8 +1,8 @@
 #pragma once
 
 #include <tuple>
-#include <opencv/cv.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv/cv.h> 
+#include <opencv/highgui.h>
 #include "Position.hpp"
 
 const double THRESHOLD = 0.90;
