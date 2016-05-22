@@ -5,7 +5,15 @@
 
 #include "Position.hpp"
 
-enum class ButtonsConstants : unsigned {OK_BUTTON, PAS_BUTTON, KNOCK_KNOCK_BUTTON, START_BUTTON,HIDDEN_STACK};
+enum class ButtonsConstants : unsigned {OK_BUTTON,
+    OK_DISABLED_BUTTON,
+    PAS_BUTTON,
+    PAS_DISABLED_BUTTON,
+    KNOCK_KNOCK_BUTTON,
+    KNOCK_KNOCK_DISABLED_BUTTON,
+    START_BUTTON,
+    HIDDEN_STACK
+      };
 
 struct ButtonsSnapshot
 {

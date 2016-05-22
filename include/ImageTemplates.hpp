@@ -24,6 +24,9 @@ class ImageTemplates {
   const std::string pasButtonFileName = "pas.tiff";
   const std::string okButtonFileName = "ok.tiff";
   const std::string stukamButtonFileName = "stukam.tiff";
+  const std::string pasDisabledButtonFileName = "pasDisabled.tiff";
+  const std::string okDisabledButtonFileName = "okDisabled.tiff";
+  const std::string stukamDisabledButtonFileName = "stukamDisabled.tiff";
   const std::string startButtonFileName = "start.tiff";
   const std::string blueBackgroundFileName = "stackBackground.tiff";
 
@@ -42,4 +45,5 @@ class ImageTemplates {
 
   const cv::Mat leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
   const cv::Mat pasButton, okButton, stukamButton, startButton, blueBackground;
+  const cv::Mat pasDisabledButton, okDisabledButton, stukamDisabledButton;
 };

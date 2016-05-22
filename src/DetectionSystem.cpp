@@ -148,13 +148,21 @@ void DetectionSystem::processTable()
            tableSnapshot.buttons[ButtonsConstants::OK_BUTTON].second) =
       ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okButton, AreaOfInterestCutter::MiddlePartPosition);
 
+  std::tie(tableSnapshot.buttons[ButtonsConstants::OK_DISABLED_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::OK_DISABLED_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::okDisabledButton, AreaOfInterestCutter::MiddlePartPosition);
+  
   std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::PAS_BUTTON].second) =
       ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasButton, AreaOfInterestCutter::MiddlePartPosition);
 
-  std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first,
-           tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
-      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton, AreaOfInterestCutter::MiddlePartPosition);
+  std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_DISABLED_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::PAS_DISABLED_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasDisabledButton, AreaOfInterestCutter::MiddlePartPosition);
+  
+  std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_DISABLED_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_DISABLED_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamDisabledButton, AreaOfInterestCutter::MiddlePartPosition);
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::START_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::START_BUTTON].second) =
@@ -162,8 +170,7 @@ void DetectionSystem::processTable()
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first,
            tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
-      ImageAnalyzer::containsImageTemplate(hiddenStack, ImageTemplates::blueBackground, hiddenStackPosition);
-  
+      ImageAnalyzer::containsImageTemplate(hiddenStack, ImageTemplates::blueBackground, hiddenStackPosition);  
 
   std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::blueBackground);
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
