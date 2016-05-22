@@ -1,5 +1,6 @@
 include_directories( ${CMAKE_SOURCE_DIR}/include )
-include_directories ( /usr/include/opencv )
+include_directories( ${OpenCV_LIBRARIES_DIR} )
+
 find_package( OpenCV REQUIRED )
 
 add_library( Common

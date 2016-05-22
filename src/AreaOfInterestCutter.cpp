@@ -27,10 +27,10 @@ cv::Mat AreaOfInterestCutter::cutMiddlePart(cv::Mat const& greenField)
 
 cv::Mat AreaOfInterestCutter::cutLeftStackPart(cv::Mat const& greenField)
 {
-  return greenField(cv::Rect(15, 160, 125, 100));
+  return greenField(cv::Rect(15, 160, 100, 125));
 }
 
 cv::Mat AreaOfInterestCutter::cutRightStackPart(cv::Mat const& greenField)
 {
-  return greenField(cv::Rect(600, 160, 125, 100));
+  return greenField(cv::Rect(600, 160, 100, 125));
 }

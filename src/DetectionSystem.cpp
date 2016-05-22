@@ -72,10 +72,30 @@ void DetectionSystem::processTable()
   auto lowerCards = AreaOfInterestCutter::cutLowerCards(greenField);
   auto enemyCards = AreaOfInterestCutter::cutEnemyCards(greenField);
   auto middle = AreaOfInterestCutter::cutMiddlePart(greenField);
+  auto leftStack = AreaOfInterestCutter::cutLeftStackPart(greenField);
+  auto rightStack = AreaOfInterestCutter::cutRightStackPart(greenField);
 
-  // TODO: add detection of hidden stack and stack and correct set of images
-  auto hiddenStack = AreaOfInterestCutter::cutLeftStackPart(greenField);
-  auto stack = AreaOfInterestCutter::cutRightStackPart(greenField);
+  Image hiddenStack, stack;
+  Position stackPosition;
+
+  bool hiddenStackIsOnLeftSide;
+  std::tie(hiddenStackIsOnLeftSide, std::ignore) = ImageAnalyzer::containsImageTemplate(leftStack, ImageTemplates::blueBackground);
+
+  if(hiddenStackIsOnLeftSide)
+  {
+    hiddenStack = leftStack;
+    stackPosition = Position(AreaOfInterestCutter::RightStackPosition.x,
+                             AreaOfInterestCutter::RightStackPosition.y);
+    stack = rightStack;
+  }
+  else
+  {
+    std::cout << "else" << std::endl;
+    hiddenStack = rightStack;
+    stackPosition = Position(AreaOfInterestCutter::LeftStackPosition.x,
+                             AreaOfInterestCutter::LeftStackPosition.y);
+    stack = leftStack;
+  }
 
   TableSnapshot tableSnapshot;
 
@@ -91,8 +111,8 @@ void DetectionSystem::processTable()
      std::move(clubCards.begin(), clubCards.end(), std::back_inserter(heartCards));
      for(auto & card : heartCards)
      {
-       card.setNewPosition(card.getX() + leftUpperPosition.getX() + AreaOfInterestCutter::UpperCardsPosition.x +5,
-                           card.getY() + leftUpperPosition.getY() + AreaOfInterestCutter::UpperCardsPosition.y +5);
+       card.setNewPosition(card.getX() + leftUpperPosition.getX() + AreaOfInterestCutter::UpperCardsPosition.x + 10,
+                           card.getY() + leftUpperPosition.getY() + AreaOfInterestCutter::UpperCardsPosition.y + 10);
      }
      return heartCards;
    });
@@ -104,8 +124,8 @@ void DetectionSystem::processTable()
      std::move(spadeCards.begin(), spadeCards.end(), std::back_inserter(diamondCards));
      for(auto & card : diamondCards)
      {
-       card.setNewPosition(card.getX() + leftUpperPosition.getX() + AreaOfInterestCutter::LowerCardsPosition.x +5,
-                           card.getY() + leftUpperPosition.getY() + AreaOfInterestCutter::LowerCardsPosition.y +5);
+       card.setNewPosition(card.getX() + leftUpperPosition.getX() + AreaOfInterestCutter::LowerCardsPosition.x +10,
+                           card.getY() + leftUpperPosition.getY() + AreaOfInterestCutter::LowerCardsPosition.y +10);
      }
      return diamondCards;
    });
@@ -113,9 +133,7 @@ void DetectionSystem::processTable()
   auto foundUpperCards = upperCardsHandle.get();
   auto foundLowerCards = lowerCardsHandle.get();
   tableSnapshot.stackCard = stackCardHandle.get();
-  tableSnapshot.stackCard.setNewPosition(
-      tableSnapshot.stackCard.getX() + AreaOfInterestCutter::RightStackPosition.x + leftUpperPosition.getX(),
-      tableSnapshot.stackCard.getY() + AreaOfInterestCutter::RightStackPosition.y + leftUpperPosition.getY());
+  tableSnapshot.stackCard.setNewPosition(tableSnapshot.stackCard.getPosition() + stackPosition + leftUpperPosition);
 
   std::move(foundUpperCards.begin(), foundUpperCards.end(), std::back_inserter(tableSnapshot.playerCards));
   std::move(foundLowerCards.begin(), foundLowerCards.end(), std::back_inserter(tableSnapshot.playerCards));
@@ -147,11 +165,7 @@ void DetectionSystem::processTable()
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
 
   for(auto & button : tableSnapshot.buttons)
-  {
-    auto previousX = button.second.second.getX();
-    auto previousY = button.second.second.getY();
-    button.second.second.setNewPosition(previousX + 5, previousY + 5);
-  }
+    button.second.second.setNewPosition(button.second.second.getPosition() + Position(5,5));
 
   if(previousTableSnapshot == tableSnapshot)
     return;
