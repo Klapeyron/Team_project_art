@@ -159,6 +159,10 @@ void DetectionSystem::processTable()
   std::tie(tableSnapshot.buttons[ButtonsConstants::PAS_DISABLED_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::PAS_DISABLED_BUTTON].second) =
       ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::pasDisabledButton, AreaOfInterestCutter::MiddlePartPosition);
+
+  std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].first,
+           tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second) =
+      ImageAnalyzer::containsImageTemplate(middle, ImageTemplates::stukamButton, AreaOfInterestCutter::MiddlePartPosition);
   
   std::tie(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_DISABLED_BUTTON].first,
            tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_DISABLED_BUTTON].second) =
