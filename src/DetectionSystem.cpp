@@ -76,13 +76,15 @@ void DetectionSystem::processTable()
   auto rightStack = AreaOfInterestCutter::cutRightStackPart(greenField);
 
   Image hiddenStack, stack;
-  Position stackPosition;
+  Position stackPosition, hiddenStackPosition;
 
   bool hiddenStackIsOnLeftSide;
   std::tie(hiddenStackIsOnLeftSide, std::ignore) = ImageAnalyzer::containsImageTemplate(leftStack, ImageTemplates::blueBackground);
 
   if(hiddenStackIsOnLeftSide)
   {
+    hiddenStackPosition = Position(AreaOfInterestCutter::LeftStackPosition.x,
+                                   AreaOfInterestCutter::LeftStackPosition.y);
     hiddenStack = leftStack;
     stackPosition = Position(AreaOfInterestCutter::RightStackPosition.x,
                              AreaOfInterestCutter::RightStackPosition.y);
@@ -90,6 +92,8 @@ void DetectionSystem::processTable()
   }
   else
   {
+    hiddenStackPosition = Position(AreaOfInterestCutter::RightStackPosition.x,
+                                   AreaOfInterestCutter::RightStackPosition.y);
     hiddenStack = rightStack;
     stackPosition = Position(AreaOfInterestCutter::LeftStackPosition.x,
                              AreaOfInterestCutter::LeftStackPosition.y);
@@ -158,13 +162,13 @@ void DetectionSystem::processTable()
 
   std::tie(tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].first,
            tableSnapshot.buttons[ButtonsConstants::HIDDEN_STACK].second) =
-      ImageAnalyzer::containsImageTemplate(hiddenStack, ImageTemplates::blueBackground, AreaOfInterestCutter::LeftStackPosition);
+      ImageAnalyzer::containsImageTemplate(hiddenStack, ImageTemplates::blueBackground, hiddenStackPosition);
 
   std::tie(tableSnapshot.enemyEndsGame, std::ignore) = ImageAnalyzer::containsImageTemplate(enemyCards, ImageTemplates::blueBackground);
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
 
   for(auto & button : tableSnapshot.buttons)
-    button.second.second.setNewPosition(button.second.second.getPosition() + Position(5,5));
+    button.second.second.setNewPosition(button.second.second.getPosition() + Position(10, 10));
 
   if(previousTableSnapshot == tableSnapshot)
     return;

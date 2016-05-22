@@ -12,5 +12,6 @@ class ImageAnalyzer {
  public:
   std::tuple<bool, Position> containsImageTemplate(cv::Mat const& image,
                                                    cv::Mat const& templ,
-                                                   cv::Rect referencePoint = cv::Rect(0,0,0,0));
+                                                   const cv::Rect referencePoint = cv::Rect(0,0,0,0));
+  std::tuple<bool, Position> containsImageTemplate(cv::Mat const& image, cv::Mat const& templ, Position position);
 };
