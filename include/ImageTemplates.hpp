@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-class ImageTemplates {  
+class ImageTemplates {
   const std::array<std::string, 13> blackTemplateFileNames
   {{"Ab.tiff","2b.tiff","3b.tiff","4b.tiff","5b.tiff","6b.tiff","7b.tiff","8b.tiff","9b.tiff","10b.tiff","Jb.tiff","Qb.tiff","Kb.tiff"}};
   const std::array<std::string, 13> redTemplateFileNames
@@ -32,7 +32,7 @@ class ImageTemplates {
   using ColorTemplatesType = std::array<cv::Mat, 4>;
   using FigureTemplatesType = std::array<cv::Mat, 13>;
   using CardTemplatesType = FigureTemplatesType;
-  
+
   ImageTemplates(std::string const& templatesDir);
   FigureTemplatesType blackCardTemplates;
   FigureTemplatesType redCardTemplates;

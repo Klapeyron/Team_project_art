@@ -12,7 +12,7 @@ class AreaOfInterestCutter
   const cv::Rect MiddlePartPosition = cv::Rect(187, 123, 333, 218);
   const cv::Rect LeftStackPosition = cv::Rect(15, 160, 125, 100);
   const cv::Rect RightStackPosition = cv::Rect(600, 160, 125, 100);
-  
+
   cv::Mat cutGreenField(cv::Mat const& tableImage, Position greenFieldUpperCorner);
   cv::Mat cutUpperCards(cv::Mat const& greenField);
   cv::Mat cutLowerCards(cv::Mat const& greenField);

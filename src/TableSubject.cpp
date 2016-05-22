@@ -1,6 +1,4 @@
 #include "TableSubject.hpp"
-#include <iostream>
-#include <chrono>
 
 TableSubject::TableSubject() :canIWork{true}, thread{&TableSubject::processInBackground, this} {}
 

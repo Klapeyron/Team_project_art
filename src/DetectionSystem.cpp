@@ -90,7 +90,6 @@ void DetectionSystem::processTable()
   }
   else
   {
-    std::cout << "else" << std::endl;
     hiddenStack = rightStack;
     stackPosition = Position(AreaOfInterestCutter::LeftStackPosition.x,
                              AreaOfInterestCutter::LeftStackPosition.y);
