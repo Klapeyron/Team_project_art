@@ -11,15 +11,18 @@
 #include <cstring>
 #include <fstream>
 #include <algorithm>
-
+#include <chrono>
+#include <thread>
 class GameControl :public IGameControl, public TableObserver
 {
 private:
+  
+  TableSnapshot tableSnapshot;
+  std::string windowId;
+  void getWindowId();
   void setPosition(const Position & position);
   void mouseClick(int button);
-  TableSnapshot tableSnapshot;
   Position getPositionOfCard(const Card & card);
-  std::string windowId;
 public:
   GameControl();
   void onUpdate(TableSnapshot const& tableSnapshot);
@@ -34,5 +37,5 @@ public:
   void pressOkDisabled();
   void pressPassDisabled();
   void pressKnockDisabled();
-  void getWindowId();
+
 };
