@@ -1,4 +1,9 @@
  #include "GameControl.hpp"
+GameControl::GameControl()
+{
+  getWindowId();
+}
+
 Position GameControl::getPositionOfCard(const Card & card)
 {
   auto it = find(tableSnapshot.playerCards.cbegin(),tableSnapshot.playerCards.cend(),card);
@@ -69,14 +74,21 @@ void GameControl::pressPassDisabled()
 void GameControl::pressKnockDisabled()
 {
   std::cout << "pressKnockKnockDisabled" << std::endl;
-  setPosition(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_BUTTON].second);
+  setPosition(tableSnapshot.buttons[ButtonsConstants::KNOCK_KNOCK_DISABLED_BUTTON].second);
 }
 void GameControl::setPosition(const Position & position)
 {
   std::string x = std::to_string(position.getX());
   std::string y = std::to_string(position.getY());
   std::string br = " ";
-  std::string cmd = "xdotool mousemove "+x+br+y;
+  std::string cmd = "xdotool mousemove --window "+windowId+br+x+br+y;
   system(cmd.c_str());
   system("xdotool click 1");
+}
+void GameControl::getWindowId()
+{
+  std::fstream file;
+  file.open("windowID.txt");
+  file >> windowId;
+  file.close();
 }
