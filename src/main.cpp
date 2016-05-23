@@ -12,7 +12,7 @@ int main()
 
     detectionSystem.registerOberver(gameControl);
 
-    ArtificialIntelligence artificialIntelligence(gameControl, true);
+    ArtificialIntelligence artificialIntelligence(gameControl);
     detectionSystem.registerOberver(artificialIntelligence);
 
     while(true)
