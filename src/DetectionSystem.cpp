@@ -180,7 +180,7 @@ void DetectionSystem::processTable()
   tableSnapshot.enemyEndsGame = not tableSnapshot.enemyEndsGame;
 
   for(auto & button : tableSnapshot.buttons)
-    button.second.second.setNewPosition(button.second.second.getPosition() + leftUpperPosition + Position(10, 10));
+    button.second.second.setNewPosition(button.second.second.getPosition() + leftUpperPosition + Position(40, 20));
 
   if(previousTableSnapshot == tableSnapshot)
     return;
