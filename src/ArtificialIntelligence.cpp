@@ -88,8 +88,18 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 					}
 					else
 					{
-						gameControl.pressPass();
-						lastTurn = TypeOfTurn::MY_FOLD;
+                                          auto buttons = tableSnapshot.buttons;
+                                          bool pasButtonExist = buttons[ButtonsConstants::PAS_BUTTON].first;
+                                          if(pasButtonExist)
+                                          {
+                                            gameControl.pressPass();
+                                            lastTurn = TypeOfTurn::MY_FOLD;
+                                          }
+                                          else
+                                          {
+                                            gameControl.pickCardFromHiddenStack();
+                                            lastTurn = TypeOfTurn::MY_TAKE;
+                                          }
 					}
 				}
 				else
@@ -364,13 +374,13 @@ ArtificialIntelligence::TypeOfTurn ArtificialIntelligence::EndGame(TableSnapshot
 {
 	gameControl.endGame();
 	if (ungruppedCards.size())
-		gameControl.throwMyCard(*ungruppedCards.begin());
+		gameControl.touchCard(*ungruppedCards.begin());
 	else
 	{
 		cards.erase(std::find (cards.cbegin(), cards.cend(), lastPut));
 		CreateCollectionsAndUnusedCards();
 		ReduceGruppedCards();
-		gameControl.throwMyCard(lastPut);
+		gameControl.touchCard(lastPut);
 	}
 	TouchMyCards();
 	return TypeOfTurn::END_GAME;
