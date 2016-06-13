@@ -2,7 +2,7 @@
 
 #include <array>
 #include <string>
-#include <opencv/cv.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 class ImageTemplates {
@@ -24,18 +24,26 @@ class ImageTemplates {
   const std::string pasButtonFileName = "pas.tiff";
   const std::string okButtonFileName = "ok.tiff";
   const std::string stukamButtonFileName = "stukam.tiff";
+  const std::string pasDisabledButtonFileName = "pasDisabled.tiff";
+  const std::string okDisabledButtonFileName = "okDisabled.tiff";
+  const std::string stukamDisabledButtonFileName = "stukamDisabled.tiff";
   const std::string startButtonFileName = "start.tiff";
   const std::string blueBackgroundFileName = "stackBackground.tiff";
 
   const std::string templatesDirectory = "../templates/";
  public:
+  using ColorTemplatesType = std::array<cv::Mat, 4>;
+  using FigureTemplatesType = std::array<cv::Mat, 13>;
+  using CardTemplatesType = FigureTemplatesType;
+
   ImageTemplates(std::string const& templatesDir);
-  std::array<cv::Mat, 13> blackCardTemplates;
-  std::array<cv::Mat, 13> redCardTemplates;
-  std::array<cv::Mat, 13> blackStackCardTemplates;
-  std::array<cv::Mat, 13> redStackCardTemplates;
-  std::array<cv::Mat, 4> stackColorTemplates;
+  FigureTemplatesType blackCardTemplates;
+  FigureTemplatesType redCardTemplates;
+  FigureTemplatesType blackStackCardTemplates;
+  FigureTemplatesType redStackCardTemplates;
+  ColorTemplatesType stackColorTemplates;
 
   const cv::Mat leftUpperCorner, rightUpperCorner, myTurn, enemyCardTaken;
   const cv::Mat pasButton, okButton, stukamButton, startButton, blueBackground;
+  const cv::Mat pasDisabledButton, okDisabledButton, stukamDisabledButton;
 };

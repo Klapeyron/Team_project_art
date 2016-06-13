@@ -8,9 +8,10 @@ ImageTemplates::ImageTemplates(std::string const& templatesDir) :templatesDirect
                                                                pasButton(cv::imread(templatesDirectory + pasButtonFileName)),
                                                                okButton(cv::imread(templatesDirectory + okButtonFileName)),
                                                                stukamButton(cv::imread(templatesDirectory + stukamButtonFileName)),
+                                                               pasDisabledButton(cv::imread(templatesDirectory + pasDisabledButtonFileName)),                                                                   okDisabledButton(cv::imread(templatesDirectory + okDisabledButtonFileName)),
+                                                               stukamDisabledButton(cv::imread(templatesDirectory + stukamDisabledButtonFileName)),
                                                                startButton(cv::imread(templatesDirectory + startButtonFileName)),
                                                                blueBackground(cv::imread(templatesDirectory + blueBackgroundFileName))
-
 {
   for(auto i = 0u; i < redTemplateFileNames.size(); i++)
     redCardTemplates[i] = cv::imread(templatesDirectory + redTemplateFileNames[i]);

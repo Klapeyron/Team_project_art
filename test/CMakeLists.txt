@@ -1,8 +1,7 @@
 enable_testing()
 
-find_package(GTest)
+find_package(GTest REQUIRED)
 find_package(Threads REQUIRED)
-find_package( OpenCV REQUIRED)
 
 set( PROJ_TEST_NAME      "unitTests" )
 
@@ -21,7 +20,10 @@ add_executable( ${PROJ_TEST_NAME}
 )
 
 target_link_libraries(	${PROJ_TEST_NAME}
-			libRummyGin
+			ArtificialIntelligence
+			Common
+			DetectionSystem
+			GameControl
 )
 
 target_link_libraries( ${PROJ_TEST_NAME}

@@ -5,24 +5,28 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 	if (tableSnapshot.enemyEndsGame && lastTurn != TypeOfTurn::END_GAME)
 	{
 		TouchMyCards();
+		std::cerr << "AI Info: Przeciwnik pierwszy zakończył grę." << " nr ruchu: " << turnNumber << std::endl;
 		lastTurn = TypeOfTurn::END_GAME;
 	}
 	if (lastTurn == TypeOfTurn::END_GAME) return;
 	if (lastTurn == TypeOfTurn::BEGIN)
+	{
+		ShowSettingsInfo();
 		RandomCardsForOpponent(tableSnapshot);
+	}
 	++turnNumber;
 	
-	if(tableSnapshot.myMove)//from tableSnapshot must be updated: playerCards, stackCard
+	if (tableSnapshot.myMove)//from tableSnapshot must be updated: playerCards, stackCard
 	{
 		Difference difference;
-		if(myFirstMove)
+		if (myFirstMove)
 			CopyMyCardFromTableSnapshot(tableSnapshot);
 		else
 		{
 			difference = ApplyDifference(tableSnapshot);
 			if (difference.added.size() && difference.removed.size())
 				std::cerr << "AI Error: Jednocześnie wzięto: " << difference.added.size() << " i wydano: " << difference.removed.size() << " kart-ę/y!" << " nr ruchu: " << turnNumber << std::endl;
-			if(lastTurn == TypeOfTurn::OPP_TAKE && myLastTurn != TypeOfTurn::MY_FOLD)
+			if (lastTurn == TypeOfTurn::OPP_TAKE && myLastTurn != TypeOfTurn::MY_FOLD)
 			{
 				if (find (difference.removed.cbegin(), difference.removed.cend(), lastPut) == difference.removed.cend())
 					std::cerr << "AI Error: Nie wydano odpowiedniej karty: " << lastPut.getFigure() << " " << lastPut.getColor() << "! nr ruchu: " << turnNumber << std::endl;
@@ -33,7 +37,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				}
 			}
 		}
-		if(lastTurn == TypeOfTurn::OPP_TAKE)
+		if (lastTurn == TypeOfTurn::OPP_TAKE)
 		{
 			if (lastStackCard == tableSnapshot.stackCard)
 				std::cerr << "AI Error: Przeciwnik nie wydał karty! Karta na stosie jest ta sama co poprzednio: " << lastStackCard.getFigure() << " " << lastStackCard.getColor() << "! nr ruchu: " << turnNumber << std::endl;
@@ -50,11 +54,13 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 					else
 						std::cerr << "AI Error: Nie usunięto karty przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
 				}
+				if (opponentCards.size() != PLAYER_CARDS_COUNT)
+					std::cerr << "AI Error: Nieprawidłowa ilość kart przeciwnika: " << opponentCards.size() << " nr ruchu: " << turnNumber << std::endl;
 			}
 		}
 		
-		CreateSeqsGroupsUnusedCards();
-		if (!difference.added.size())
+		CreateCollectionsAndUnusedCards();
+		if (difference.added.empty())
 		{
 			if (lastTurn == TypeOfTurn::MY_TAKE)
 				std::cerr << "AI Error: Dwa razy pod rząd taki sam ruch graczaaa: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
@@ -74,13 +80,30 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 				lastTaken = AICard(Card_Figure::None, Card_Color::None);
 				if (myFirstMove)
 				{
-					gameControl.pressPass();
-					lastTurn = TypeOfTurn::MY_FOLD;
+					if (ungruppedCards.empty())
+					{
+						gameControl.pickCardFromStack();
+						lastTaken = tableSnapshot.stackCard;
+						lastTurn = TypeOfTurn::MY_TAKE;
+					}
+					else
+					{
+                                          auto buttons = tableSnapshot.buttons;
+                                          bool pasButtonExist = buttons[ButtonsConstants::PAS_BUTTON].first;
+                                          if(pasButtonExist)
+                                          {
+                                            gameControl.pressPass();
+                                            lastTurn = TypeOfTurn::MY_FOLD;
+                                          }
+                                          else
+                                          {
+                                            gameControl.pickCardFromHiddenStack();
+                                            lastTurn = TypeOfTurn::MY_TAKE;
+                                          }
+					}
 				}
 				else
 				{
-					if (!RemoveCardFromDeck(tableSnapshot.stackCard))
-						std::cerr << "AI Error: Nie znaleziono usuwanej karty: " << tableSnapshot.stackCard.getFigure() << " " << tableSnapshot.stackCard.getColor() <<  " w talii!" << " nr ruchu: " << turnNumber << std::endl;
 					gameControl.pickCardFromHiddenStack();
 					lastTurn = TypeOfTurn::MY_TAKE;
 				}
@@ -88,7 +111,7 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 		}
 		else //jeśli wzięto kartę
 		{
-			WarningGameCorrectness(TypeOfTurn::MY_PUT);
+			WarningTurnCorrectness(TypeOfTurn::MY_PUT);
 			if (lastTaken != Card(Card_Figure::None, Card_Color::None) && find (difference.added.cbegin(), difference.added.cend(), lastTaken) == difference.added.cend())
 				std::cerr << "AI Error: Nie znaleziono pobranej karty: " << lastTaken.getFigure() << " " << lastTaken.getColor() << "! nr ruchu: " << turnNumber << std::endl;
 			if (difference.added.size() != 1)
@@ -99,55 +122,69 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 			else
 				std::cerr << "AI Info: Pobrano: " << DIM_BLUE << difference.added.begin()->getFigure() << " " << difference.added.begin()->getColor() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
 			WarningCardsCount(tableSnapshot, true);
+			
+			for (const Card& card : difference.added)
+				if (!RemoveCardFromDeck(card) && turnNumber != 2 && turnNumber != 4)
+					std::cerr << "AI Error: Nie znaleziono usuwanej karty: " << card.getFigure() << " " << card.getColor() <<  " w talii!" << " nr ruchu: " << turnNumber << std::endl;
 			ReplaceOpponentCard(difference.added);
 			ReduceGruppedCards();
-// 			ShowSeqs();
-// 			ShowGroups();
+			ShowSeqs();
+			ShowGroups();
 			lastTurn = TypeOfTurn::MY_PUT;
 			if (ungruppedCards.size())
 			{
 				CheckUsefulnessForOpponent();
-				std::multiset < AICard, Comparation > ungruppedCardsTmp(CreateSeqsGroupsUnusedCards(ungruppedCards, MIN_SEQ_LEN - 1, MIN_GROUP_LEN - 1));
-				AICard cardToPut;
-				if (!ungruppedCardsTmp.empty())
-					cardToPut = ChooseCardToPut(ungruppedCardsTmp, 30.0, 40.0);
-				else
-					cardToPut = ChooseCardToPut(ungruppedCards, 20.0, 35.0);
-				gameControl.throwMyCard(lastStackCard = lastPut = cardToPut);
-				if (ungruppedCards.size() == 1)
+				if (ungruppedCards.size() == 1 || (!isFulOptionActivated && UngruppedCardsPoints() <= END_GAME_POINTS))// warunek końca gry
 					lastTurn = EndGame(tableSnapshot);
 				else
-					if (!isFulOptionActivated && UngruppedCardsPoints() <= END_GAME_POINTS)
-						lastTurn = EndGame(tableSnapshot);
+				{
+					const AICard cardToPut = ChooseCardToBeReallyPut();
+					gameControl.throwMyCard(lastStackCard = lastPut = (Card)cardToPut);
+					if (cardToPut == AICard(Card_Figure::None, Card_Color::None))
+						std::cerr << "AI Error: Wydano pustą kartę!" << " nr ruchu: " << turnNumber << std::endl;
+				}
 			}
 			else
-				if (myFirstMove)
-					lastTurn = EndGame(tableSnapshot);
+			{
+				const Card cardToPut = PossibleToEndGameForNoUngruppedCards();
+				if (cardToPut == Card(Card_Figure::None, Card_Color::None))
+				{
+					gameControl.throwMyCard(lastStackCard = lastPut = *std::min_element(cards.begin(), cards.end(), UsefulnessForOpponentComparation));
+					std::cerr << "AI Warrning: Wydano kartę i stracono kolekcję!" << " nr ruchu: " << turnNumber << std::endl;
+				}
 				else
-					std::cerr << "AI Error: Brak niepogrupowanych kart! Nie wykonano ruchu!" << " nr ruchu: " << turnNumber << std::endl;
+				{
+					lastStackCard = lastPut = cardToPut;
+					lastTurn = EndGame(tableSnapshot);
+				}
+				if (turnNumber != 2 && turnNumber != 4)
+					std::cerr << "AI Error: Brak niepogrupowanych kart! Gra powinna być zakończona wcześniej!" << " nr ruchu: " << turnNumber << std::endl;
+			}
 		}
 		myLastTurn = lastTurn;
 		myFirstMove = false;
 	}
-	else//from tableSnapshot must be updated: opponentTookCardFromHiddenStack, stackCard
+	else//from tableSnapshot must be updated: enemyTookCard, stackCard
 	{
 		if (tableSnapshot.enemyTookCard) //jeśli wziął kartę
 		{
-			if (lastStackCard != tableSnapshot.stackCard) //jeśli wziął kartę z odkrytego stosu
-			{
-				if(lastStackCard == Card(Card_Figure::None, Card_Color::None))
-					std::cerr << "AI Error: Dodano pustą kartę do kart przeciwnika!" << " nr ruchu: " << turnNumber << std::endl;
-				opponentCards.emplace_back(lastStackCard, true);
-				lastStackCard = tableSnapshot.stackCard;
-			}
-			else
-				RemoveCardFromDeck(tableSnapshot.stackCard);
-		
 			if (lastTurn == TypeOfTurn::OPP_TAKE)
 				std::cerr << "AI Error: Dwa razy pod rząd taki sam ruch przeciwnika: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
 			else
 				if (lastTurn != TypeOfTurn::OPP_FOLD && lastTurn != TypeOfTurn::OPP_BEFORE_TAKE)
 					std::cerr << "AI Error: Naruszenie spójności gry: OPP_TAKE po " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
+				else
+					if (lastStackCard == tableSnapshot.stackCard)
+						opponentCards.emplace_back(*std::next(cardDeck.begin(), rand() % cardDeck.size()), false);
+			if (lastStackCard != tableSnapshot.stackCard) //jeśli wziął kartę z odkrytego stosu
+			{
+				if(lastStackCard == Card(Card_Figure::None, Card_Color::None))
+					std::cerr << "AI Error: Przeciwnik wziął pustą kartę z odkrytego stosu!" << " nr ruchu: " << turnNumber << std::endl;
+				else
+					opponentCards.emplace_back(lastStackCard, true);
+				std::cerr << "AI Info: Przeciwnik pobrał: " << GRAY << lastStackCard.getFigure() << " " << lastStackCard.getColor() << COLOR_RESET << ". nr ruchu: " << turnNumber << std::endl;
+				lastStackCard = tableSnapshot.stackCard;
+			}
 			lastTurn = TypeOfTurn::OPP_TAKE;
 		}
 		else
@@ -173,7 +210,16 @@ void ArtificialIntelligence::onUpdate(TableSnapshot const& tableSnapshot)
 	}
 }
 
-void ArtificialIntelligence::WarningGameCorrectness(TypeOfTurn const& currentTurn)
+void ArtificialIntelligence::ShowSettingsInfo()
+{
+	std::cerr << "Parametry algorytmu: " << std::endl;
+	std::cerr << "Tryb zakończenia gry bez niepogrupowanych kart: " << (isFulOptionActivated ? "\e[0;32mwłączony" : "\e[0;31mwyłączony") << COLOR_RESET << "." << std::endl;
+	std::cerr << "Próg przydatności dla przeciwnika decydujący o wydaniu największej figury: " << putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSingleCards << "% (Pojedyncze karty), " << putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSmallCollection << "% (Małe kolekcje)" << std::endl;
+	std::cerr << "Próg przydatności dla przeciwnika, gdy wydawana jest największa figura: " << theHeaviestCardUsfullnessForOppLowerThenThresholdForSingleCards << "% (Pojedyncze karty), " << theHeaviestCardUsfullnessForOppLowerThenThresholdForSmallCollection << "% (Małe kolekcje)" << std::endl;
+	std::cerr << "Tolerancja progu przy wydawaniu najmniej przydatnej karty dla przeciwnika, gdy ta karta należy do małej grupy i sekwencji: " << usefulnessForOpponentTolerance << "%" << std::endl << std::endl;
+}
+
+void ArtificialIntelligence::WarningTurnCorrectness(TypeOfTurn const& currentTurn)
 {
 	if (lastTurn == currentTurn)
 		std::cerr << "AI Error: Dwa razy pod rząd taki sam ruch gracza: " << lastTurn << "! nr ruchu: " << turnNumber << std::endl;
@@ -202,7 +248,7 @@ int ArtificialIntelligence::UngruppedCardsPoints() const
 	return points;
 }
 
-void ArtificialIntelligence::ReplaceOpponentCard(const auto& addedDifference)
+void ArtificialIntelligence::ReplaceOpponentCard(const std::list< AICard >& addedDifference)
 {
 	for (const Card& card : addedDifference)
 	{
@@ -229,12 +275,51 @@ void ArtificialIntelligence::ReplaceOpponentCard(const auto& addedDifference)
 	}
 }
 
+AICard ArtificialIntelligence::ChooseCardToBeReallyPut() const
+{
+	SequencesOfCards sequences2;
+	GroupsOfCards groups2;
+	std::multiset < AICard, Comparation > ungruppedCardsFromSmallCollection(CreateCollectionsAndUnusedCards(ungruppedCards, MIN_SEQ_LEN - 1, MIN_GROUP_LEN - 1, sequences2, groups2));
+	AICard cardToPut;
+	if (!ungruppedCardsFromSmallCollection.empty())// dla pojedynczych kart
+		cardToPut = ChooseCardToPut(ungruppedCardsFromSmallCollection, putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSingleCards, theHeaviestCardUsfullnessForOppLowerThenThresholdForSingleCards);
+	else// dla podwójnych kart
+	{
+		cardToPut = ChooseCardToPut(ungruppedCards, putTheHeaviestCardIfUsefullnessForOppIsLowerThenThresholdForSmallCollection, theHeaviestCardUsfullnessForOppLowerThenThresholdForSmallCollection);
+		//optimalize CardToPut
+		std::list < AICard > cardsWithTheSameFigure;
+		for (const AICard& card : ungruppedCards)
+			if (card.getFigure() == cardToPut.getFigure())
+				cardsWithTheSameFigure.push_back(card);
+			std::list < AICard >::const_iterator minUseCard = std::min_element(cardsWithTheSameFigure.cbegin(), cardsWithTheSameFigure.cend(), UsefulnessForOpponentComparation);
+		if (minUseCard != cardsWithTheSameFigure.cend())
+		{
+// 			if (GetOpponentKnownCardsNumber() / (double)PLAYER_CARDS_COUNT >= 50.0 && CardCountWithTheSameFigureInCardDeck() >= 1)
+			cardToPut = *minUseCard;
+			if (sequences2.FindCard(cardToPut) && groups2.FindCard(cardToPut))
+			{
+				cardsWithTheSameFigure.erase(minUseCard);
+				std::list < AICard >::const_iterator minUseCard2 = std::min_element(cardsWithTheSameFigure.cbegin(), cardsWithTheSameFigure.cend(), UsefulnessForOpponentComparation);
+				if (minUseCard2 != cardsWithTheSameFigure.cend())
+					if (minUseCard2->getUsefulnessForOpponent() - cardToPut.getUsefulnessForOpponent() < usefulnessForOpponentTolerance && !sequences2.FindCard(*minUseCard2) && !groups2.FindCard(*minUseCard2))
+						cardToPut = *minUseCard2;
+			}
+// 			std::cerr << cardToPut << " nr ruchu: " << turnNumber << std::endl;
+		}
+		else
+			std::cerr << "AI Error: Brak minimalnej karty!" << " nr ruchu: " << turnNumber << std::endl;
+	}
+	return cardToPut;
+}
+
 AICard ArtificialIntelligence::ChooseCardToPut(std::multiset < AICard, Comparation > sourceCards, const double& tryToThrowTheGreatestFigureThreshold, const double& ifTheUsefulnessIsLessThanThreshold) const
 {
-	AICard cardToPut = *std::min_element(sourceCards.begin(), sourceCards.end(), UsefulnessForOpponentComparation);
+	AICard cardToPut = *std::min_element(sourceCards.begin(), sourceCards.end(), UsefulnessForOpponentComparation);// karta najmniej korzystna dla przeciwnika
 	if (cardToPut.getUsefulnessForOpponent() < tryToThrowTheGreatestFigureThreshold)
-	{
-		std::multiset < AICard, Comparation >::const_reverse_iterator crit = std::find_if(sourceCards.crbegin(), sourceCards.crend(), [& ifTheUsefulnessIsLessThanThreshold](const AICard& card){ return card.getUsefulnessForOpponent() < ifTheUsefulnessIsLessThanThreshold; });// znajdowanie karty o największej figurze z przydatnością mniejszą od 45.0 %
+	{// wybierz kartę o największej figurze o przydatności mniejszej niż próg
+		bool b = false;
+		if (GetOpponentKnownCardsNumber() / (double)PLAYER_CARDS_COUNT >= 50.0) b = true;
+		std::multiset < AICard, Comparation >::const_reverse_iterator crit = std::find_if(sourceCards.crbegin(), sourceCards.crend(), [& ifTheUsefulnessIsLessThanThreshold](const AICard& card){ return card.getUsefulnessForOpponent() < ifTheUsefulnessIsLessThanThreshold; });// znajdowanie karty o największej figurze z przydatnością mniejszą od [próg] %
 		if(crit != sourceCards.crend())
 			cardToPut = *crit;
 	}
@@ -261,8 +346,8 @@ Difference ArtificialIntelligence::ApplyDifference(TableSnapshot const& tableSna
 void ArtificialIntelligence::RandomCardsForOpponent(TableSnapshot const& tableSnapshot)
 {
 	std::vector < Card > cardDeck;
-	for (const auto& figure : Card_Figure())
-		for (const auto& color : Card_Color())
+	for (const Card_Figure& figure : Card_Figure())
+		for (const Card_Color& color : Card_Color())
 			cardDeck.emplace_back(figure, color);
 	cardDeck.erase(std::find(cardDeck.cbegin(), cardDeck.cend(), tableSnapshot.stackCard));
 	for (const Card& card : tableSnapshot.playerCards)
@@ -270,7 +355,7 @@ void ArtificialIntelligence::RandomCardsForOpponent(TableSnapshot const& tableSn
 	while(opponentCards.size() < PLAYER_CARDS_COUNT)
 	{
 		Card card(cardDeck[rand() % cardDeck.size()]);
-		if(std::find(opponentCards.cbegin(), opponentCards.cend(), card) == opponentCards.cend())
+		if (std::find(opponentCards.cbegin(), opponentCards.cend(), card) == opponentCards.cend())
 			opponentCards.emplace_back(card, false);
 	}
 }
@@ -280,22 +365,47 @@ void ArtificialIntelligence::CopyMyCardFromTableSnapshot(TableSnapshot const& ta
 	cards.clear();
 	for (const Card& card : tableSnapshot.playerCards)
 		cards.emplace(card, newCardID++);
+	if (!RemoveCardFromDeck(tableSnapshot.stackCard))
+		std::cerr << "AI Error: Nie znaleziono usuwanej karty ze stosu w talii kart!" << " nr ruchu: " << turnNumber << std::endl;
 	RemoveCardsFromDeck();
 }
 
-ArtificialIntelligence::TypeOfTurn ArtificialIntelligence::EndGame(TableSnapshot const& tableSnapshot) const
+ArtificialIntelligence::TypeOfTurn ArtificialIntelligence::EndGame(TableSnapshot const& tableSnapshot)
 {
 	gameControl.endGame();
-	gameControl.throwMyCard(*std::min_element(ungruppedCards.begin(), ungruppedCards.end(), UsefulnessForOpponentComparation));
+	if (ungruppedCards.size())
+		gameControl.touchCard(*ungruppedCards.begin());
+	else
+	{
+		cards.erase(std::find (cards.cbegin(), cards.cend(), lastPut));
+		CreateCollectionsAndUnusedCards();
+		ReduceGruppedCards();
+		gameControl.touchCard(lastPut);
+	}
 	TouchMyCards();
 	return TypeOfTurn::END_GAME;
 }
 
+Card ArtificialIntelligence::PossibleToEndGameForNoUngruppedCards() const
+{
+	Card cardToPut(Card_Figure::None, Card_Color::None);
+	SequencesOfCards::const_iterator sit = std::find_if(sequences.begin(), sequences.end(), [](const Sequence& seq){ return seq.size() > MIN_SEQ_LEN; });
+	if (sit != sequences.end())
+		cardToPut = (Card)*sit->begin();
+	else
+	{
+		GroupsOfCards::const_iterator git = std::find_if(groups.begin(), groups.end(), [](const Group& group){ return group.size() > MIN_GROUP_LEN; });
+		if (git != groups.end())
+			cardToPut = (Card)*git->begin();
+	}
+	return cardToPut;
+}
+
 void ArtificialIntelligence::TouchMyCards() const
 {
-	for(const Sequence& seq : sequences)
+	for (const Sequence& seq : sequences)
 		gameControl.touchCard(*seq.begin());
-	for(const Group& group : groups)
+	for (const Group& group : groups)
 		gameControl.touchCard(*group.begin());
 	gameControl.pressOK();
 }
@@ -312,11 +422,22 @@ void ArtificialIntelligence::CheckUsefulnessForOpponent()
 	ungruppedCards.insert(ungruppedCardsTmp.begin(), ungruppedCardsTmp.end());
 }
 
+AICard ArtificialIntelligence::MinUsefulnessForOpponentCardCollection(const std::vector < AICard >& sourceCards) const
+{
+	std::vector < AICard > ungruppedCardsTmp(sourceCards.begin(), sourceCards.end());
+	for (AICard& ungCard : ungruppedCardsTmp)
+	{
+		ungCard.Usefulness() = (50.0 / (COLORS_COUNT - 1)) * CalculateFactorForGroup(ungCard.getFigure());
+		ungCard.Usefulness() += (50.0 / 12.0) * CalculateFactorForSequence(ungCard);
+	}
+	return *std::min_element(ungruppedCardsTmp.cbegin(), ungruppedCardsTmp.cend(), UsefulnessForOpponentComparation);
+}
+
 double ArtificialIntelligence::CalculateFactorForGroup(const Card_Figure& figure) const
 {
 	int count = 0;
 	double weight = 0.0;
-	for (const auto& color : Card_Color())
+	for (const Card_Color& color : Card_Color())
 	{
 		std::list < AIOppCard >::const_iterator it = find (opponentCards.cbegin(), opponentCards.cend(), AICard (figure, color));
 		if (it != opponentCards.cend())
@@ -346,7 +467,7 @@ int ArtificialIntelligence::CalculateFactorForSequence(const AICard& card) const
 	double weight = 0.0;
 	int minDistance3 = 13;
 	bool isTargetCard3Real = false;
-	for (const auto& oppCard : opponentCards)
+	for (const AIOppCard& oppCard : opponentCards)
 		if (oppCard.getColor() == card.getColor())
 		{
 			int distance = abs(static_cast<int>(card.getFigure()) - static_cast<int>(oppCard.getFigure()));
@@ -409,6 +530,7 @@ void ArtificialIntelligence::ReduceGruppedCards()
 {
 	for (SequencesOfCards::const_iterator foundSeq = sequences.begin(); foundSeq != sequences.end();)
 	{
+		bool isSeqRemoved = false;
 		for (Sequence::iterator cardFromSeq = foundSeq->begin(); cardFromSeq != foundSeq->end(); ++cardFromSeq)
 			if (cardFromSeq->getId() > 0)
 			{
@@ -432,15 +554,17 @@ void ArtificialIntelligence::ReduceGruppedCards()
 						groups.AddGroup(group2);
 					}
 					else
-						if (!seq.CheckCorrectness() && !gr.CheckCorrectness())// nie uwzględnia przypadku gdy dwie grupy zakrywają sekwencję
+						if (!seq.CheckCorrectness() && !gr.CheckCorrectness())
 						{
 							int seqPoints = 0, grPoints = 0;
 							for (const AICard& card : sequence2)// strata usunięcie sekwencji
-								seqPoints += static_cast<int>(card.getFigure());
+								if (groups.FindCard(card.getId()) == groups.end())
+									seqPoints += static_cast<int>(card.getFigure());
 							for (const AICard& card : group2)// strata usunięcie grupy
-								grPoints += static_cast<int>(card.getFigure());
+								if (sequences.FindCard(card.getId()) == sequences.end())
+									grPoints += static_cast<int>(card.getFigure());
 							
-							if (seqPoints <= 0 || grPoints <= 0)
+							if (seqPoints < 0 || grPoints < 0)
 								std::cerr << "AI Error: Nieprawidłowa suma punktów: sekwencja: " << seqPoints << " grupa: " << grPoints << "!" << std::endl;
 							else
 								if (seqPoints < grPoints)
@@ -451,6 +575,7 @@ void ArtificialIntelligence::ReduceGruppedCards()
 											if (groups.FindCard(cardFromS->getId()) == groups.end())
 												ungruppedCards.insert(*cardFromS);
 									foundSeq = sequences.erase(foundSeq);
+									isSeqRemoved = true;
 									break;
 								}
 								else
@@ -480,6 +605,7 @@ void ArtificialIntelligence::ReduceGruppedCards()
 									foundSeq = sequences.erase(foundSeq);// usunięcie całej sekwencji
 									sequences.AddSequence(sequence2);// dodanie zredukowanej sekwencji
 									if (seq2.CheckCorrectness()) sequences.AddSequence(sequence3);
+									isSeqRemoved = true;
 									break;
 								}
 								else
@@ -495,11 +621,21 @@ void ArtificialIntelligence::ReduceGruppedCards()
 			}
 			else
 				std::cerr << "AI Error: Redukcja kart - id karty równe zero!" << std::endl;
-		++foundSeq;
+		if(!isSeqRemoved) ++foundSeq;
 	}
+	if (!CheckCorrectnessOfUnusedCards())
+		std::cerr << "AI Error: Niepogrupowane karty zawierają się w kolekcji kart!" << " nr ruchu: " << turnNumber << std::endl;
 }
 
-int ArtificialIntelligence::CreateSeqsGroupsUnusedCards()
+bool ArtificialIntelligence::CheckCorrectnessOfUnusedCards()
+{
+	for (const AICard& ungCard : ungruppedCards)
+		if (sequences.FindCard(ungCard) || groups.FindCard(ungCard))
+			return false;
+	return true;
+}
+
+int ArtificialIntelligence::CreateCollectionsAndUnusedCards()
 {
 	std::multiset < AICard, Comparation > cardsForSeqs(cards), cardsForGroups(cards);
 	int count = sequences.CreateSequences(cardsForSeqs) + groups.CreateGroups(cardsForGroups);
@@ -508,11 +644,9 @@ int ArtificialIntelligence::CreateSeqsGroupsUnusedCards()
 	return count;
 }
 
-std::multiset < AICard, Comparation > ArtificialIntelligence::CreateSeqsGroupsUnusedCards(std::multiset < AICard, Comparation > sourceCards, const int& minSequenceLen, const int& minGroupLen) const
+std::multiset < AICard, Comparation > ArtificialIntelligence::CreateCollectionsAndUnusedCards(std::multiset < AICard, Comparation > sourceCards, const int& minSequenceLen, const int& minGroupLen, SequencesOfCards& sequences, GroupsOfCards& groups) const
 {
 	std::multiset < AICard, Comparation > cardsForSeqs(sourceCards), cardsForGroups(sourceCards);
-	SequencesOfCards sequences;
-	GroupsOfCards groups;
 	int count = sequences.CreateSequences(cardsForSeqs, minSequenceLen) + groups.CreateGroups(cardsForGroups, minGroupLen);
 	return ReturnUnusedCards(cardsForSeqs, cardsForGroups);
 }
@@ -534,22 +668,29 @@ int ArtificialIntelligence::RemoveCardsFromDeck()
 {
 	int count = 0;
 	for (const AICard& card : cards)
-	{
 		if (RemoveCardFromDeck(card))
 			++count;
-	}
 	return count;
 }
 
 bool ArtificialIntelligence::RemoveCardFromDeck(const Card& card)
 {
-	for (std::list < Card >::iterator it = cardDeck.begin(); it != cardDeck.end(); ++it)
-		if (*it == card)
-		{
-			cardDeck.erase(it);
-			return true;
-		}
+	std::list < Card >::const_iterator cardToErase = std::find(cardDeck.cbegin(), cardDeck.cend(), card);
+	if (cardToErase != cardDeck.cend())
+	{
+		cardDeck.erase(cardToErase);
+		return true;
+	}
 	return false;
+}
+
+int ArtificialIntelligence::CardCountWithTheSameFigureInCardDeck(const Card& checkedCard) const
+{
+	int count = 0;
+	for (const Card& card : cardDeck)
+		if (card.getFigure() == checkedCard.getFigure())
+			++count;
+	return count;
 }
 
 void ArtificialIntelligence::GameInit()
@@ -572,7 +713,7 @@ void ArtificialIntelligence::GameInit()
 
 int ArtificialIntelligence::ShowCards() const
 {
-	std::cout << "Cards:" << std::endl;
+	std::cout << "Player cards:" << std::endl;
 	for (const AICard& card : cards)
 		std::cout << card;
 	return cards.size();
@@ -580,7 +721,7 @@ int ArtificialIntelligence::ShowCards() const
 
 int ArtificialIntelligence::ShowCardDeck() const
 {
-	std::cout << "Cards Deck:" << std::endl;
+	std::cout << "Cards on deck:" << std::endl;
 	for (const Card& card : cardDeck)
 		std::cout << card;
 	return cardDeck.size();
@@ -590,9 +731,7 @@ int ArtificialIntelligence::GetOpponentKnownCardsNumber() const
 {
 	int count = 0;
 	for (const AIOppCard& card : opponentCards)
-	{
 		if (card.getIsReal())
 			++count;
-	}
 	return count;
 }

@@ -6,19 +6,25 @@
 #include "TableObserver.hpp"
 #include <unistd.h>
 #include <iostream>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 #include "CardOperators.hpp"
 #include <iostream>
 #include <cstring>
-
+#include <fstream>
+#include <algorithm>
+#include <chrono>
+#include <thread>
 class GameControl :public IGameControl, public TableObserver
 {
 private:
+  
+  TableSnapshot tableSnapshot;
+  std::string windowId;
+  void getWindowId();
   void setPosition(const Position & position);
   void mouseClick(int button);
-  TableSnapshot tableSnapshot;
+  Position getPositionOfCard(const Card & card);
 public:
+  GameControl();
   void onUpdate(TableSnapshot const& tableSnapshot);
   void pickCardFromHiddenStack();
   void pickCardFromStack();
@@ -28,4 +34,8 @@ public:
   void pressOK();  
   void pressPass();
   void pressKnock();
+  void pressOkDisabled();
+  void pressPassDisabled();
+  void pressKnockDisabled();
+
 };

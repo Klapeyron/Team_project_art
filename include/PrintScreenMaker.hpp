@@ -6,7 +6,7 @@
 
 namespace
 {
-const std::string printScreenFileName = "prtScr.tiff";
+const std::string printScreenFileName = "/mnt/ramdisk/prtScr.tiff";
 }
 
 class PrintScreenMaker {

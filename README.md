@@ -8,6 +8,12 @@
 sudo apt-get install libopencv-dev
 ```
 
+### Mount ramdisk:
+```sh
+sudo mkdir /mnt/ramdisk
+sudo mount -t tmpfs -o size=512m tmpfs /mnt/ramdisk
+```
+
 #### Install gtest:
 ```sh
 wget http://googletest.googlecode.com/files/gtest-1.7.0.zip
